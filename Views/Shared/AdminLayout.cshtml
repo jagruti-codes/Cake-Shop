@@ -1,0 +1,170 @@
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    var adminName = HttpContextAccessor.HttpContext?.Session.GetString("UserName") ?? "Admin User";
+
+    string adminInitials = "";
+
+    if (!string.IsNullOrWhiteSpace(adminName))
+    {
+        adminInitials = string.Join("", adminName
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Select(x => x[0]))
+            .ToUpper();
+    }
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - Admin Panel</title>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="~/css/admin.css" />
+</head>
+
+<body>
+
+    <div class="layout">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+
+            <div class="brand">
+                <div class="logo">🍰</div>
+
+                <div class="brand-text">
+                    <h3>Sweet Rewards</h3>
+                    <small class="admin-panel-text">Admin Panel</small>
+                </div>
+            </div>
+
+            <ul class="menu">
+
+                <li class="active">
+                    <a asp-controller="Admin" asp-action="Dashboard">
+                        <i class="fa fa-home"></i> Dashboard
+                    </a>
+                </li>
+
+                <li>
+                    <a asp-controller="Admin" asp-action="Category">
+                        <i class="fa fa-list"></i> Category
+                    </a>
+                </li>
+
+                <li>
+                    <a asp-controller="Admin" asp-action="Product">
+                        <i class="fa fa-box"></i> Product
+                    </a>
+                </li>
+
+                <li>
+                    <a asp-controller="Admin" asp-action="Order">
+                        <i class="fa fa-shopping-cart"></i> Order
+                    </a>
+                </li>
+
+                <li>
+                    <a asp-controller="Admin" asp-action="Shipping">
+                        <i class="fa fa-truck"></i> Shipping
+                    </a>
+                </li>
+
+                <li>
+                    <a asp-controller="Admin" asp-action="Payment">
+                        <i class="fa fa-credit-card"></i> Payment
+                    </a>
+                </li>
+
+                <li>
+                    <a asp-controller="Admin" asp-action="Customers">
+                        <i class="fa fa-users"></i> Customers
+                    </a>
+                </li>
+
+                <li>
+                    <a asp-controller="Admin" asp-action="Reviews">
+                        <i class="fa fa-star"></i> Reviews
+                    </a>
+                </li>
+
+                <li>
+                    <a asp-controller="Admin" asp-action="Contact">
+                        <i class="fa fa-phone"></i> Contact
+                    </a>
+                </li>
+
+                <li>
+                    <a asp-controller="Admin" asp-action="Setting">
+                        <i class="fa fa-cog"></i> Setting
+                    </a>
+                </li>
+
+                <li>
+                    <a asp-controller="Admin" asp-action="Logout">
+                        <i class="fa fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
+
+            </ul>
+
+        </aside>
+
+        <!-- MAIN AREA -->
+        <main class="main">
+
+            <!-- TOPBAR -->
+            <div class="topbar">
+
+                <!-- SEARCH -->
+                <div class="search-wrapper">
+
+                    <div class="search">
+                        <i class="fa fa-search"></i>
+                        <input type="text" placeholder="Search orders, products, or customers..." />
+                    </div>
+
+                    <div class="notify">
+                        <i class="fa fa-bell"></i>
+                    </div>
+
+                </div>
+
+                <!-- PROFILE -->
+                <div class="profile-wrapper">
+
+                    <div class="profile-text">
+                        <strong>@adminName</strong>
+                        <span>Master Chef Admin</span>
+                    </div>
+
+                    <!-- AVATAR -->
+                    <div class="admin-avatar">
+                        @adminInitials
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- PAGE CONTENT -->
+            @RenderBody()
+
+        </main>
+
+    </div>
+
+    <!-- SCRIPTS -->
+    @RenderSection("Scripts", required: false)
+
+</body>
+</html>
