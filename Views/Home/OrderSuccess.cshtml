@@ -1,0 +1,304 @@
+﻿@* @{
+    ViewData["Title"] = "Order Success";
+    var message = TempData["OrderSuccess"] as string ?? "Your order placed successfully";
+}
+
+<div class="order-success-page">
+    <div class="order-popup" role="alert" aria-live="assertive">
+        <div class="order-check">
+            <i class="fa-solid fa-check"></i>
+        </div>
+        <h1>@message</h1>
+        <p>We are preparing your cake with care. Redirecting you in a few seconds...</p>
+        <a href="/Home/UserDashboard" class="btn btn-danger">Go Now</a>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        setTimeout(function () {
+            window.location.href = '/Home/UserDashboard';
+        }, 2800);
+    </script>
+} *@
+
+@* 
+<h2>✅ Order Successful</h2>
+<a href="/Home/Cakes">Continue Shopping</a> *@
+
+@* 
+<h2>✅ Order Successful</h2>
+<p>Your order has been placed successfully.</p>
+<a href="/Home/Cakes" class="btn btn-primary">Continue Shopping</a> *@
+@* 
+@model cake_shop.Models.Order
+
+@{
+    ViewData["Title"] = "Order Success";
+}
+
+<div class="container mt-5">
+
+    <div class="card shadow-lg p-4">
+
+        <div class="text-center">
+            <h2 class="text-success">🎉 Order Placed Successfully</h2>
+        </div>
+
+        <hr />
+
+        <h4>Order Details</h4>
+
+        <p><b>Order ID:</b> #@Model.Id</p>
+        <p><b>Date:</b> @Model.CreatedAt.ToString("dd-MMM-yyyy hh:mm tt")</p>
+        <p><b>Payment:</b> COD</p>
+
+        <hr />
+
+        <h4>Order Summary</h4>
+
+        @foreach (var item in Model.Items)
+        {
+            <div class="d-flex align-items-center mb-2">
+
+                <img src="@item.Product?.ImagePath"
+                     style="width:60px;height:60px;object-fit:cover;border-radius:8px;" />
+
+                <div class="ms-3 flex-grow-1">
+                    <b>@item.Product?.Name</b><br />
+                    ₹@item.Price × @item.Quantity
+                </div>
+
+                <div>
+                    ₹@(item.Price * item.Quantity)
+                </div>
+
+            </div>
+        }
+
+        <hr />
+
+        <h4>Total: ₹@Model.TotalAmount</h4>
+
+        <a href="/Home/Cakes" class="btn btn-primary mt-3">Continue Shopping</a>
+        <a href="/Home/OrderHistory" class="btn btn-outline-dark mt-3">View Orders</a>
+
+    </div>
+
+</div> *@
+
+
+@model cake_shop.Models.Order
+
+@{
+    ViewData["Title"] = "Order Success";
+}
+
+<style>
+    .success-wrapper {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fff8f5;
+        padding: 20px;
+    }
+
+    .success-card {
+        width: 100%;
+        max-width: 650px;
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        padding: 30px;
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    .success-header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .success-icon {
+        width: 70px;
+        height: 70px;
+        background: #e8fff0;
+        color: #28a745;
+        font-size: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        margin: 0 auto 15px;
+    }
+
+    .success-header h2 {
+        font-weight: 700;
+        color: #222;
+    }
+
+    .success-header p {
+        color: #777;
+        margin-top: 5px;
+    }
+
+    .order-box {
+        background: #fafafa;
+        padding: 15px;
+        border-radius: 12px;
+        margin-top: 15px;
+    }
+
+    .order-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+        .order-item:last-child {
+            border-bottom: none;
+        }
+
+        .order-item img {
+            width: 55px;
+            height: 55px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+
+    .order-item-details {
+        flex: 1;
+    }
+
+        .order-item-details b {
+            font-size: 15px;
+        }
+
+    .price {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .total-box {
+        text-align: right;
+        font-size: 18px;
+        font-weight: 700;
+        margin-top: 15px;
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+        gap: 10px;
+    }
+
+    .btn-custom {
+        flex: 1;
+        padding: 10px;
+        border-radius: 10px;
+        font-weight: 600;
+        text-align: center;
+    }
+
+    .btn-primary-custom {
+        background: #ff4d6d;
+        color: white;
+        border: none;
+    }
+
+        .btn-primary-custom:hover {
+            background: #e63e5c;
+        }
+
+    .btn-outline-custom {
+        border: 2px solid #ddd;
+        color: #333;
+        background: transparent;
+    }
+
+        .btn-outline-custom:hover {
+            background: #f5f5f5;
+        }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="success-wrapper">
+
+    <div class="success-card">
+
+        <!-- HEADER -->
+        <div class="success-header">
+            <div class="success-icon">
+                <i class="fa fa-check"></i>
+            </div>
+
+            <h2>Order Placed Successfully 🎉</h2>
+            <p>Thank you! Your delicious cake is being prepared.</p>
+        </div>
+
+        <hr />
+
+        <!-- ORDER INFO -->
+        <p><b>Order ID:</b> #@Model.Id</p>
+        <p><b>Date:</b> @Model.CreatedAt.ToString("dd-MMM-yyyy hh:mm tt")</p>
+        <p><b>Payment:</b> Cash on Delivery</p>
+
+        <!-- ITEMS -->
+        <div class="order-box">
+
+            <h5 style="margin-bottom:10px;">Items</h5>
+
+            @foreach (var item in Model.Items)
+            {
+                <div class="order-item">
+
+                    <img src="@item.Product?.ImagePath" />
+
+                    <div class="order-item-details">
+                        <b>@item.Product?.Name</b><br />
+                        <small>Qty: @item.Quantity</small>
+                    </div>
+
+                    <div class="price">
+                        ₹@(item.Price* item.Quantity)
+                    </div>
+
+                </div>
+            }
+
+            <div class="total-box">
+                Total: ₹@Model.TotalAmount
+            </div>
+
+        </div>
+
+        <!-- BUTTONS -->
+        <div class="action-buttons">
+
+            <a href="/Home/Cakes" class="btn-custom btn-outline-custom">
+                Continue Shopping
+            </a>
+
+            <a href="/Home/OrderHistory" class="btn-custom btn-primary-custom">
+                View Orders
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
