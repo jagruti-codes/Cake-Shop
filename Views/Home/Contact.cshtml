@@ -1,0 +1,141 @@
+@model cake_shop.Models.ContactMessage
+@{
+    ViewData["Title"] = "Contact";
+}
+
+<div class="contact-v2">
+    <section class="contact-head">
+        <p class="home-eyebrow">Contact SweetCake</p>
+        <h1>Let us plan your perfect cake</h1>
+        <p>Share your event details and we will help you with flavor, design, size, and delivery timeline.</p>
+    </section>
+
+    <section class="contact-shell">
+        <div class="contact-form-wrap">
+            <h3>Send us your request</h3>
+
+            <form asp-action="Contact" asp-controller="Home" method="post" class="contact-form-v2" novalidate>
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+
+                @if (TempData["ContactSuccess"] is string successMessage)
+                {
+                    <p class="contact-msg show">@successMessage</p>
+                }
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="Name"></label>
+                        <input asp-for="Name" class="form-control" placeholder="Your full name" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Email"></label>
+                        <input asp-for="Email" class="form-control" placeholder="you@example.com" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Phone"></label>
+                        <input asp-for="Phone" class="form-control" placeholder="10-digit phone number" />
+                        <span asp-validation-for="Phone" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="EventDate"></label>
+                        <input asp-for="EventDate" class="form-control" />
+                        <span asp-validation-for="EventDate" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="Message">Cake Details</label>
+                        <textarea asp-for="Message" class="form-control" rows="5" placeholder="Theme, flavor, servings, and special instructions"></textarea>
+                        <span asp-validation-for="Message" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-danger btn-lg mt-4">Send Message</button>
+            </form>
+        </div>
+
+
+        @{
+            var info = ViewBag.ContactInfo as cake_shop.Models.Contact;
+        }
+
+        <aside class="contact-info-wrap">
+            <h3>Bakery Information</h3>
+
+            <div class="info-row">
+                <i class="fa-solid fa-location-dot"></i>
+                <p>@(info?.Address ?? "Address not available")</p>
+            </div>
+
+            <div class="info-row">
+                <i class="fa-solid fa-phone"></i>
+                <p>@(info?.Phone ?? "Phone not available")</p>
+            </div>
+
+            <div class="info-row">
+                <i class="fa-solid fa-envelope"></i>
+                <p>@(info?.Email ?? "Email not available")</p>
+            </div>
+
+            <div class="info-row">
+                <i class="fa-solid fa-clock"></i>
+                <p>
+                    @if (info != null)
+                    {
+                        <span>
+                            Mon-Fri: @info.WeekdayStart - @info.WeekdayEnd <br />
+                            Sat-Sun: @info.WeekendStart - @info.WeekendEnd
+                        </span>
+                    }
+                    else
+                    {
+                        <span>Timing not available</span>
+                    }
+                </p>
+            </div>
+
+            <div class="contact-highlight">
+                <h4>Custom Cake Consultation</h4>
+                <p>Need design help? Our pastry team can guide you on theme, layers, and serving size.</p>
+                <a href="/Home/Cakes" class="btn btn-dark">View Cake Menu</a>
+            </div>
+        </aside>
+
+
+
+      @*   <aside class="contact-info-wrap">
+            <h3>Bakery Information</h3>
+            <div class="info-row">
+                <i class="fa-solid fa-location-dot"></i>
+                <p>SweetCake Bakery, MG Road, Bengaluru</p>
+            </div>
+            <div class="info-row">
+                <i class="fa-solid fa-phone"></i>
+                <p>+91 98765 43210</p>
+            </div>
+            <div class="info-row">
+                <i class="fa-solid fa-envelope"></i>
+                <p>orders@sweetcake.com</p>
+            </div>
+            <div class="info-row">
+                <i class="fa-solid fa-clock"></i>
+                <p>Mon - Sun: 9:00 AM to 9:00 PM</p>
+            </div>
+
+            <div class="contact-highlight">
+                <h4>Custom Cake Consultation</h4>
+                <p>Need design help? Our pastry team can guide you on theme, layers, and serving size.</p>
+                <a href="/Home/Cakes" class="btn btn-dark">View Cake Menu</a>
+            </div>
+        </aside> *@
+    </section>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
