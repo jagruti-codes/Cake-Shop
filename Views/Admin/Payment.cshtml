@@ -1,0 +1,150 @@
+
+
+
+@model List<cake_shop.Models.Payment>
+
+@{
+    ViewData["Title"] = "Payments";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+    <div class="page-title">
+        <h2>Shipping Management</h2>
+        <p>Manage all order shipments</p>
+    </div>
+</div>
+
+
+
+<!-- SUCCESS POPUP -->
+@if (TempData["success"] != null)
+{
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: '@TempData["success"]',
+            timer: 2000,
+            showConfirmButton: false
+        });
+    </script>
+}
+
+<!-- SEARCH + FILTER -->
+<form method="get" asp-action="Payment" asp-controller="Admin">
+    <div class="panel" style="margin-top:20px;">
+        <div style="display:flex; gap:10px;">
+
+            <input type="text"
+                   name="search"
+                   value="@Context.Request.Query["search"]"
+                   placeholder="Search customer, email, order id..."
+                   class="search" />
+
+            <select name="status">
+                <option value="">All Status</option>
+                <option>Pending</option>
+                <option>Completed</option>
+                <option>Failed</option>
+            </select>
+
+            <button type="submit" class="action-btn primary">
+                Filter
+            </button>
+
+        </div>
+    </div>
+</form>
+
+<!-- TABLE -->
+<div class="panel">
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>ORDER</th>
+                <th>CUSTOMER</th>
+                <th>EMAIL</th>
+                <th>PHONE</th>
+                <th>AMOUNT</th>
+                <th>METHOD</th>
+                <th>STATUS</th>
+                <th>ACTION</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            @if (Model != null && Model.Count > 0)
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>#PAY-@item.Id</td>
+                        <td>#ORD-@item.OrderId</td>
+                        <td>@item.CustomerName</td>
+                        <td>@item.Email</td>
+                        <td>@item.Phone</td>
+                        <td>₹@item.Amount</td>
+                        <td>@item.Method</td>
+
+                        <td>
+                            <span class="status
+                                    @(item.Status == "Completed" ? "delivered" :
+                                                                item.Status == "Pending" ? "processing" : "failed")">
+                        @item.Status
+                    </span>
+                </td>
+
+                        <td class="actions">
+
+                            <a href="javascript:void(0);"
+                               onclick="changeStatus(@item.Id,'Completed')">
+                                <i class="fa fa-check edit"></i>
+                            </a>
+
+                            <a href="javascript:void(0);"
+                               onclick="changeStatus(@item.Id,'Failed')">
+                                <i class="fa fa-times edit"></i>
+                            </a>
+
+                        </td>
+                    </tr>
+                        }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="9" style="text-align:center;">No payments found</td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+</div>
+
+<!-- SWEETALERT -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    function changeStatus(id, status) {
+
+        Swal.fire({
+            title: 'Update Payment Status?',
+            text: "Change status to " + status + "?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#aaa',
+            confirmButtonText: 'Yes'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href =
+                    '/Admin/UpdatePaymentStatus?id=' + id + '&status=' + status;
+            }
+        });
+    }
+</script>
