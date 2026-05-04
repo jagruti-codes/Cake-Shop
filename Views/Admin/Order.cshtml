@@ -1,0 +1,161 @@
+
+
+
+@model List<cake_shop.Models.Order>
+
+@{
+    ViewData["Title"] = "Orders";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+    <div class="page-title">
+        <h2>Order Management</h2>
+        <p>Manage all customer orders</p>
+    </div>
+</div>
+
+
+
+<!-- SEARCH + FILTER PANEL -->
+<form method="get" asp-action="Order" asp-controller="Admin">
+    <div class="panel" style="margin-top:20px;">
+
+        <div style="display:flex; justify-content:space-between; gap:10px;">
+
+            <!-- SEARCH -->
+            <div class="search" style="flex:1;">
+                <i class="fa fa-search"></i>
+          
+                <input type="text"
+                       name="search"
+                       value="@Context.Request.Query["search"]"
+                       placeholder="Search customer or product..." />
+            </div>
+
+      
+            <select name="status">
+                <option value="">All Status</option>
+                <option value="Pending">Pending</option>
+                <option value="Processing">Processing</option>
+                <option value="Shipped">Shipped</option>
+                <option value="Delivered">Delivered</option>
+            </select>
+
+            <button type="submit" class="action-btn primary">
+                Filter
+            </button>
+
+        </div>
+
+    </div>
+</form>
+
+<!-- TABLE -->
+<div class="panel">
+
+    <table id="orderTable">
+
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>CUSTOMER</th>
+                <th>PRODUCTS</th>
+                <th>TOTAL</th>
+                <th>STATUS</th>
+                <th>ACTIONS</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            @if (Model != null && Model.Count > 0)
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+
+                        <td>#ORD-@item.Id</td>
+
+                        <td>@item.User?.Name</td>
+
+                        <td>
+                            @string.Join(", ", item.Items.Select(i => i.Product!.Name))
+                        </td>
+
+                        <td>₹@item.TotalAmount</td>
+
+                        <td>
+                            <span class="status @(item.Status == "Delivered" ? "delivered" : "processing")">
+                                @item.Status
+                            </span>
+                        </td>
+
+                        <td class="actions">
+
+
+                            <a asp-action="EditOrder" asp-route-id="@item.Id">
+                                <i class="fa fa-pen edit"></i>
+                            </a>
+
+                            <!-- DELETE -->
+                            <a href="javascript:void(0);"
+                               onclick="confirmDelete(@item.Id)">
+                                <i class="fa fa-trash delete"></i>
+                            </a>
+
+                        </td>
+
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="6" style="text-align:center;">
+                        No orders found
+                    </td>
+                </tr>
+            }
+
+        </tbody>
+
+    </table>
+
+</div>
+
+<!-- DELETE SCRIPT -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    function confirmDelete(id) {
+        Swal.fire({
+            title: 'Delete Order?',
+            text: "This order will be removed permanently!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ff4d6d',
+            cancelButtonColor: '#aaa',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = '/Admin/DeleteOrder/' + id;
+            }
+        });
+    }
+</script>
+
+@if (TempData["success"] != null)
+{
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: '@TempData["success"]',
+            timer: 2000,
+            showConfirmButton: false
+        });
+    </script>
+}
