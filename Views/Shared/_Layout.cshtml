@@ -1,0 +1,902 @@
+@* <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - SweetCake</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    @RenderSection("Styles", required: false)
+</head>
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var action = ViewContext.RouteData.Values["action"]?.ToString();
+    var isAuthPage = string.Equals(controller, "Account", StringComparison.OrdinalIgnoreCase)
+                     && (string.Equals(action, "Login", StringComparison.OrdinalIgnoreCase)
+                         || string.Equals(action, "Register", StringComparison.OrdinalIgnoreCase));
+    var isHomePage = string.Equals(controller, "Home", StringComparison.OrdinalIgnoreCase)
+                     && string.Equals(action, "Index", StringComparison.OrdinalIgnoreCase);
+}
+<body class="@(isAuthPage ? "auth-layout" : string.Empty)">
+    @if (isAuthPage)
+    {
+        <header class="auth-topbar">
+            <div class="container d-flex justify-content-between align-items-center py-3">
+                <a class="navbar-brand logo m-0" asp-controller="Home" asp-action="Index">SweetCake</a>
+                <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary btn-sm rounded-pill px-3">Back to Home</a>
+            </div>
+        </header>
+
+        <main class="auth-layout-main">
+            @RenderBody()
+        </main>
+    }
+    else
+    {
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+            <div class="container">
+                <a class="navbar-brand logo" asp-controller="Home" asp-action="Index">SweetCake</a>
+
+                <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#menu">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="menu">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Cakes">Cakes</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="About">About</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Contact">Contact</a></li>
+                    </ul>
+
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Search cakes..." autocomplete="off">
+                        <ul id="searchSuggestions" class="search-suggestions"></ul>
+                    </div>
+                </div>
+
+                <div class="header-icons">
+                    <a asp-controller="Home" asp-action="Wishlist"><i class="fa fa-heart"></i></a>
+                    <a asp-controller="Home" asp-action="Cart"><i class="fa fa-shopping-cart"></i></a>
+                    <a asp-controller="Home" asp-action="UserDashboard"><i class="fa fa-user"></i></a>
+
+                    <a asp-controller="Account" asp-action="Login" class="btn btn-danger ms-2">Login</a>
+                    <a asp-controller="Account" asp-action="Register" class="btn btn-danger ms-2">Register</a>
+                </div>
+            </div>
+        </nav>
+
+        @if (isHomePage)
+        {
+            <main class="site-content-home">
+                @RenderBody()
+            </main>
+        }
+        else
+        {
+            <main class="container site-main">
+                @RenderBody()
+            </main>
+        }
+
+        <footer class="footer">
+            <h3>SweetCake Bakery</h3>
+            <p>Making your celebraations sweeter</p>
+
+            <div class="social">
+                <i class="fab fa-facebook"></i>
+                <i class="fab fa-instagram"></i>
+                <i class="fab fa-whatsapp"></i>
+            </div>
+
+            <p class="copy">� 2026 SweetCake | All Rights Reserved</p>
+        </footer>
+    }
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init();
+    </script>
+    <script src="~/js/search.js" asp-append-version="true"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
+
+
+ *@
+
+
+
+
+
+
+
+
+            @*  *@
+@* 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - SweetCake</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    @RenderSection("Styles", required: false)
+</head>
+
+@using System.Text.Json
+@using cake_shop.Models
+
+@{
+        var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+        var action = ViewContext.RouteData.Values["action"]?.ToString();
+
+        var isAuthPage = controller == "Account" && (action == "Login" || action == "Register");
+
+        // ✅ GET USER FROM SESSION
+        string userJson = Context.Session.GetString("UserProfile");
+        UserProfileViewModel user = null;
+
+        if (!string.IsNullOrEmpty(userJson))
+        {
+                user = JsonSerializer.Deserialize<UserProfileViewModel>(userJson);
+        }
+}
+
+<body>
+
+    @if (isAuthPage)
+    {
+        <main>
+            @RenderBody()
+        </main>
+    }
+    else
+    {
+        <!-- NAVBAR -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+            <div class="container">
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">SweetCake</a>
+
+                <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#menu">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="menu">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Cakes">Cakes</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Contact">Contact</a></li>
+                    </ul>
+
+                    <!-- RIGHT SIDE -->
+                    <div class="d-flex align-items-center">
+
+                        <a asp-controller="Home" asp-action="Wishlist" class="me-3">
+                            <i class="fa fa-heart"></i>
+                        </a>
+
+                        <a asp-controller="Home" asp-action="Cart" class="me-3">
+                            <i class="fa fa-shopping-cart"></i>
+                        </a>
+
+                        @if (user != null)
+                        {
+                            <!-- ✅ USER DROPDOWN -->
+                            <div class="dropdown">
+                                <a class="d-flex align-items-center dropdown-toggle text-decoration-none"
+                                   data-bs-toggle="dropdown">
+
+                                    <img src="https://ui-avatars.com/api/?name=@user.Name&background=ff4d6d&color=fff"
+                                         width="35" height="35"
+                                         class="rounded-circle me-2" />
+
+                                    <strong>@user.Name</strong>
+                                </a>
+
+                                <ul class="dropdown-menu dropdown-menu-end shadow">
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Home" asp-action="UserDashboard">
+                                            <i class="fa fa-user me-2"></i> My Dashboard
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Home" asp-action="Orders">
+                                            <i class="fa fa-box me-2"></i> My Orders
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Home" asp-action="Wishlist">
+                                            <i class="fa fa-heart me-2"></i> Wishlist
+                                        </a>
+                                    </li>
+
+                                    <li><hr /></li>
+
+                                    <li>
+                                        <a class="dropdown-item text-danger" asp-controller="Account" asp-action="Logout">
+                                            <i class="fa fa-sign-out-alt me-2"></i> Logout
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        }
+                        else
+                        {
+                            <!-- ❌ NOT LOGGED IN -->
+                            <a asp-controller="Account" asp-action="Login" class="btn btn-danger ms-2">Login</a>
+                            <a asp-controller="Account" asp-action="Register" class="btn btn-danger ms-2">Register</a>
+                        }
+
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <main class="container mt-4">
+            @RenderBody()
+        </main>
+    }
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    @RenderSection("Scripts", required: false)
+
+</body>
+</html>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - SweetCake</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    @RenderSection("Styles", required: false)
+</head>
+
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+        var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+        var action = ViewContext.RouteData.Values["action"]?.ToString();
+
+        var isAuthPage = controller == "Account" && (action == "Login" || action == "Register");
+
+        var userId = HttpContextAccessor.HttpContext?.Session.GetInt32("UserId");
+        var role = HttpContextAccessor.HttpContext?.Session.GetString("Role");
+        var userName = HttpContextAccessor.HttpContext?.Session.GetString("UserName");
+
+        string initials = "";
+
+        if (!string.IsNullOrWhiteSpace(userName))
+        {
+                initials = string.Join("", userName
+                        .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(x => x[0]))
+                        .ToUpper();
+        }
+}
+
+<body>
+
+    @if (isAuthPage)
+    {
+        <main>
+            @RenderBody()
+        </main>
+    }
+    else
+    {
+        <!-- NAVBAR -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+            <div class="container">
+
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                    SweetCake
+                </a>
+
+                <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#menu">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="menu">
+
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Cakes">Cakes</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Contact">Contact</a>
+                        </li>
+                    </ul>
+
+                    <div class="d-flex align-items-center">
+
+                        <a asp-controller="Home" asp-action="Wishlist" class="me-3">
+                            <i class="fa fa-heart"></i>
+                        </a>
+
+                        <a asp-controller="Home" asp-action="Cart" class="me-3">
+                            <i class="fa fa-shopping-cart"></i>
+                        </a>
+
+                        @if (userId != null)
+                        {
+                            <!-- LOGGED IN USER -->
+                            <div class="dropdown">
+
+                                <a class="d-flex align-items-center dropdown-toggle text-decoration-none"
+                                   data-bs-toggle="dropdown">
+
+                                    <!-- 🔥 SAME AVATAR AS DASHBOARD -->
+                                    <div class="profile-avatar me-2">
+                                        @initials
+                                    </div>
+
+                                    <strong>@userName</strong>
+                                </a>
+
+                                <ul class="dropdown-menu dropdown-menu-end shadow">
+
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Home" asp-action="UserDashboard">
+                                            <i class="fa fa-user me-2"></i> Dashboard
+                                        </a>
+                                    </li>
+
+                                    @if (role == "Admin")
+                                    {
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="Admin" asp-action="Dashboard">
+                                                <i class="fa fa-shield me-2"></i> Admin Panel
+                                            </a>
+                                        </li>
+                                    }
+
+                                    <li><hr /></li>
+
+                                    <li>
+                                        <a class="dropdown-item text-danger" asp-controller="Account" asp-action="Logout">
+                                            <i class="fa fa-sign-out-alt me-2"></i> Logout
+                                        </a>
+                                    </li>
+
+                                </ul>
+                            </div>
+                        }
+                        else
+                        {
+                            <!-- NOT LOGGED IN -->
+                            <a asp-controller="Account" asp-action="Login" class="btn btn-danger ms-2">
+                                Login
+                            </a>
+
+                            <a asp-controller="Account" asp-action="Register" class="btn btn-danger ms-2">
+                                Register
+                            </a>
+                        }
+
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <main class="container mt-4">
+            @RenderBody()
+        </main>
+    }
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    @RenderSection("Scripts", required: false)
+
+</body>
+</html>
+
+
+                            <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - SweetCake</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    @RenderSection("Styles", required: false)
+</head>
+
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var action = ViewContext.RouteData.Values["action"]?.ToString();
+
+    var isAuthPage = controller == "Account" && (action == "Login" || action == "Register");
+
+    var userId = HttpContextAccessor.HttpContext?.Session.GetInt32("UserId");
+    var role = HttpContextAccessor.HttpContext?.Session.GetString("Role");
+    var userName = HttpContextAccessor.HttpContext?.Session.GetString("UserName");
+
+    string initials = "";
+
+    if (!string.IsNullOrWhiteSpace(userName))
+    {
+        initials = string.Join("", userName
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Select(x => x[0]))
+            .ToUpper();
+    }
+}
+
+<body>
+
+@if (isAuthPage)
+{
+    <main>
+        @RenderBody()
+    </main>
+}
+else
+{
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+
+            <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                SweetCake
+            </a>
+
+            <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#menu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="menu">
+
+                <!-- LEFT MENU -->
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Home" asp-action="Index">Home</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Home" asp-action="Cakes">Cakes</a>
+                    </li>
+
+                    <!-- ✅ ABOUT ADDED -->
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Home" asp-action="About">About</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Home" asp-action="Contact">Contact</a>
+                    </li>
+                </ul>
+
+                <!-- 🔍 SEARCH + FILTER -->
+                <div class="d-flex me-3">
+
+                    <select id="filterType" class="form-select form-select-sm me-2">
+                        <option value="all">All</option>
+                        <option value="cake">Cakes</option>
+                        <option value="category">Category</option>
+                    </select>
+
+                    <input type="text"
+                           id="searchBox"
+                           class="form-control form-control-sm"
+                           placeholder="Search..." />
+                </div>
+
+                <!-- RIGHT SIDE ICONS -->
+                <div class="d-flex align-items-center">
+
+                    <a asp-controller="Home" asp-action="Wishlist" class="me-3">
+                        <i class="fa fa-heart"></i>
+                    </a>
+
+                    <a asp-controller="Home" asp-action="Cart" class="me-3">
+                        <i class="fa fa-shopping-cart"></i>
+                    </a>
+
+                    @if (userId != null)
+                    {
+                        <!-- USER -->
+                        <div class="dropdown">
+
+                            <a class="d-flex align-items-center dropdown-toggle text-decoration-none"
+                               data-bs-toggle="dropdown">
+
+                                <div class="profile-avatar me-2">
+                                    @initials
+                                </div>
+
+                                <strong>@userName</strong>
+                            </a>
+
+                            <ul class="dropdown-menu dropdown-menu-end shadow">
+
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Home" asp-action="UserDashboard">
+                                        <i class="fa fa-user me-2"></i> Dashboard
+                                    </a>
+                                </li>
+
+                                @if (role == "Admin")
+                                {
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Admin" asp-action="Dashboard">
+                                            <i class="fa fa-shield me-2"></i> Admin Panel
+                                        </a>
+                                    </li>
+                                }
+
+                                <li><hr /></li>
+
+                                <li>
+                                    <a class="dropdown-item text-danger" asp-controller="Account" asp-action="Logout">
+                                        <i class="fa fa-sign-out-alt me-2"></i> Logout
+                                    </a>
+                                </li>
+
+                            </ul>
+                        </div>
+                    }
+                    else
+                    {
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-danger ms-2">
+                            Login
+                        </a>
+
+                        <a asp-controller="Account" asp-action="Register" class="btn btn-danger ms-2">
+                            Register
+                        </a>
+                    }
+
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mt-4">
+        @RenderBody()
+    </main>
+}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- 🔍 SEARCH JS -->
+<script>
+    document.getElementById("searchBox").addEventListener("keyup", function () {
+
+        let value = this.value.toLowerCase();
+        let filter = document.getElementById("filterType").value;
+
+        console.log("Search:", value, "Filter:", filter);
+
+        // 👉 Hook backend/API here later
+        // Example:
+        // fetch(`/Home/Search?query=${value}&type=${filter}`)
+    });
+</script>
+
+@RenderSection("Scripts", required: false)
+
+</body>
+</html> *@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - SweetCake</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    @RenderSection("Styles", required: false)
+</head>
+
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+        var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+        var action = ViewContext.RouteData.Values["action"]?.ToString();
+
+        var isAuthPage = controller == "Account" && (action == "Login" || action == "Register");
+
+        var userId = HttpContextAccessor.HttpContext?.Session.GetInt32("UserId");
+        var role = HttpContextAccessor.HttpContext?.Session.GetString("Role");
+        var userName = HttpContextAccessor.HttpContext?.Session.GetString("UserName");
+
+        string initials = "";
+
+        if (!string.IsNullOrWhiteSpace(userName))
+        {
+                initials = string.Join("", userName
+                        .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(x => x[0]))
+                        .ToUpper();
+        }
+}
+
+<body>
+
+    @if (isAuthPage)
+    {
+        <main>
+            @RenderBody()
+        </main>
+    }
+    else
+    {
+        <!-- NAVBAR -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+            <div class="container">
+
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                    SweetCake
+                </a>
+
+                <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#menu">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="menu">
+
+                    <!-- LEFT MENU -->
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Cakes">Cakes</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="About">About</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Contact">Contact</a>
+                        </li>
+
+                        @* <div class="search-box">
+                            <input type="text" id="searchInput" placeholder="Search cakes..." autocomplete="off">
+                            <ul id="searchSuggestions" class="search-suggestions"></ul>
+                        </div> *@
+
+                    </ul>
+
+                    <div class="search-box ms-3">
+                        <input type="text" id="searchInput" class="form-control" placeholder="Search cakes..." autocomplete="off">
+                    </div>
+
+                    <!-- SEARCH + FILTER -->
+                    @* <div class="d-flex me-3">
+
+                        <select id="filterType" class="form-select form-select-sm me-2">
+                            <option value="all">All</option>
+                            <option value="cake">Cake</option>
+                            <option value="category">Category</option>
+                        </select>
+
+                        <input type="text"
+                               id="searchBox"
+                               class="form-control form-control-sm"
+                               placeholder="Search cakes..." />
+                    </div> *@
+
+                    <!-- RIGHT ICONS -->
+                    <div class="d-flex align-items-center">
+
+                        <a asp-controller="Home" asp-action="Wishlist" class="me-3">
+                            <i class="fa fa-heart"></i>
+                        </a>
+
+                        <a asp-controller="Home" asp-action="Cart" class="me-3">
+                            <i class="fa fa-shopping-cart"></i>
+                        </a>
+
+                        @if (userId != null)
+                        {
+                            <div class="dropdown">
+
+                                <a class="d-flex align-items-center dropdown-toggle text-decoration-none"
+                                   data-bs-toggle="dropdown">
+
+                                    <div class="profile-avatar me-2">
+                                        @initials
+                                    </div>
+
+                                    <strong>@userName</strong>
+                                </a>
+
+                                <ul class="dropdown-menu dropdown-menu-end shadow">
+
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Home" asp-action="UserDashboard">
+                                            <i class="fa fa-user me-2"></i> Dashboard
+                                        </a>
+                                    </li>
+
+                                    @if (role == "Admin")
+                                    {
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="Admin" asp-action="Dashboard">
+                                                <i class="fa fa-shield me-2"></i> Admin Panel
+                                            </a>
+                                        </li>
+                                    }
+
+                                    <li><hr /></li>
+
+                                    <li>
+                                        <a class="dropdown-item text-danger" asp-controller="Account" asp-action="Logout">
+                                            <i class="fa fa-sign-out-alt me-2"></i> Logout
+                                        </a>
+                                    </li>
+
+                                </ul>
+                            </div>
+                        }
+                        else
+                        {
+                            <a asp-controller="Account" asp-action="Login" class="btn btn-danger ms-2">
+                                Login
+                            </a>
+
+                            <a asp-controller="Account" asp-action="Register" class="btn btn-danger ms-2">
+                                Register
+                            </a>
+                        }
+
+                    </div>
+
+                </div>
+            </div>
+        </nav>
+
+        <!-- BODY -->
+        <main class="container mt-4">
+            @RenderBody()
+        </main>
+    }
+
+
+
+    @* <footer class="footer">
+        <h3>SweetCake Bakery</h3>
+        <p>Making your celebrations sweeter</p>
+
+        <div class="social">
+            <i class="fab fa-facebook"></i>
+            <i class="fab fa-instagram"></i>
+            <i class="fab fa-whatsapp"></i>
+        </div>
+
+        <p class="copy">© 2026 SweetCake | All Rights Reserved</p>
+    </footer> *@
+
+
+    @if (!isAuthPage)
+    {
+        <footer class="footer">
+            <h3>SweetCake Bakery</h3>
+            <p>Making your celebrations sweeter</p>
+
+            <div class="social">
+                <i class="fab fa-facebook"></i>
+                <i class="fab fa-instagram"></i>
+                <i class="fab fa-whatsapp"></i>
+            </div>
+
+            <p class="copy">© 2026 SweetCake | All Rights Reserved</p>
+        </footer>
+    }
+
+
+    <!-- SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    @* <script>
+        let timeout;
+
+        document.getElementById("searchBox").addEventListener("keyup", function () {
+
+            clearTimeout(timeout);
+
+            timeout = setTimeout(() => {
+
+                let query = this.value;
+                let type = document.getElementById("filterType").value;
+
+                fetch(`/Home/Search?query=${query}&type=${type}`)
+                    .then(res => res.json())
+                    .then(data => {
+
+                        console.log("Search Results:", data);
+
+                        // store for Cakes page
+                        localStorage.setItem("searchResults", JSON.stringify(data));
+                        localStorage.setItem("searchQuery", query);
+
+                        // redirect
+                        window.location.href = "/Home/Cakes";
+                    });
+
+            }, 400);
+        });
+
+        document.getElementById("filterType").addEventListener("change", function () {
+            document.getElementById("searchBox").dispatchEvent(new Event("keyup"));
+        });
+    </script> *@
+
+    <script>
+        let timeout;
+        const searchInput = document.getElementById("searchInput");
+
+        if (searchInput) {
+
+            searchInput.addEventListener("keyup", function () {
+
+                clearTimeout(timeout);
+
+                timeout = setTimeout(() => {
+
+                    let query = this.value.trim();
+
+                    if (query === "") return;
+
+                    fetch(`/Home/Search?query=${query}`)
+                        .then(res => res.json())
+                        .then(data => {
+
+                            // store results
+                            localStorage.setItem("searchResults", JSON.stringify(data));
+
+                            // go to cakes page
+                            window.location.href = "/Home/Cakes";
+                        });
+
+                }, 400);
+
+            });
+        }
+    </script>
+
+    @RenderSection("Scripts", required: false)
+
+</body>
+</html>
