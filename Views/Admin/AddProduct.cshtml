@@ -1,0 +1,87 @@
+@model cake_shop.Models.Product
+@{
+    ViewData["Title"] = "Add Product";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+<!-- HEADER -->
+<div class="page-header">
+    <div class="page-title">
+        <h2>Add Product</h2>
+        <p>Create a new bakery product</p>
+    </div>
+</div>
+
+<!-- FORM PANEL -->
+<div class="panel">
+
+    <form asp-action="AddProduct" method="post" enctype="multipart/form-data">
+        <div class="form-grid">
+
+            <!-- LEFT SIDE -->
+            <div>
+
+                <label>Product Name</label>
+                <input asp-for="Name" />
+
+                <label>Description</label>
+                <textarea asp-for="Description"></textarea>
+
+                <label>Price</label>
+               
+                <input asp-for="Price" type="number" step="0.01" />
+                <label>Stock</label>
+              
+                <input asp-for="Stock" type="number" />
+
+                <label>Quantity</label>
+                <select asp-for="Quantity">
+                    <option>500 g</option>
+                    <option>1 kg</option>
+                    <option>2 kg</option>
+                </select>
+
+                <label>Category</label>
+
+                <select asp-for="CategoryId" class="form-control">
+                    <option value="">-- Select Category --</option>
+                    @foreach (var cat in ViewBag.Categories)
+                    {
+                        <option value="@cat.Id">@cat.Name</option>
+                    }
+                </select>
+
+                <label>Status</label>
+                
+
+                <select asp-for="Status" class="form-control">
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                </select>
+
+            </div>
+
+            <!-- RIGHT SIDE -->
+            <div class="upload-box">
+                <i class="fa fa-cloud-upload-alt upload-icon"></i>
+
+                <p><b>Upload Product Image</b></p>
+                <small>PNG, JPG up to 5MB</small>
+
+            
+                <input type="file" name="imageFile" />
+            </div>
+
+        </div>
+
+        <!-- BUTTONS -->
+        <div class="form-actions center-btns">
+            <a asp-action="Product" class="action-btn light">Cancel</a>
+            
+            <button type="submit">Save</button>
+        </div>
+
+    </form>
+
+</div>
