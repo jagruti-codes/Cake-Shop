@@ -1,0 +1,66 @@
+
+@model cake_shop.Models.Order
+
+@{
+    ViewData["Title"] = "Edit Order";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+<!-- HEADER -->
+<div class="page-header">
+    <div class="page-title">
+        <h2>Edit Order</h2>
+        <p>Update Order status</p>
+    </div>
+</div>
+
+
+<!-- FORM PANEL -->
+
+<div class="panel">
+
+  
+    <form asp-action="EditOrder" method="post">
+
+        <input type="hidden" asp-for="Id" />
+
+        <div>
+            <label>Order ID</label>
+            <input value="#ORD-@Model.Id" disabled class="form-control" />
+        </div>
+
+        <div style="margin-top:10px;">
+            <label>Customer</label>
+            <input value="@Model.UserId" disabled class="form-control" />
+        </div>
+
+        <div style="margin-top:10px;">
+            <label>Status</label>
+            <select asp-for="Status" class="form-control">
+
+                <option>Pending</option>
+                <option>Processing</option>
+                <option>Shipped</option>
+                <option>Delivered</option>
+
+            </select>
+        </div>
+
+        <br />
+
+       
+        <!-- BUTTONS -->
+        <div class="form-actions center-btns">
+            <a href="/Admin/Order" class="action-btn light">
+                Cancel
+            </a>
+
+            <button type="submit" class="action-btn primary">
+                Update Status
+            </button>
+        </div>
+
+    </form>
+
+</div>
