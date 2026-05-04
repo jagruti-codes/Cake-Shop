@@ -1,0 +1,184 @@
+
+
+@model cake_shop.Models.Contact
+
+@{
+    ViewData["Title"] = "Contact Management";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+
+<!-- PAGE HEADER -->
+
+
+
+<div class="page-header">
+    <div>
+        <h2>Contact Management</h2>
+        <p>Manage bakery contact information</p>
+    </div>
+</div>
+
+<!-- CURRENT INFO -->
+<div class="panel">
+
+    <h4>Current Details</h4>
+
+    <div class="contact-grid">
+
+        <div class="contact-box">
+            <i class="fa fa-envelope"></i>
+            <div>
+                <span>Email</span>
+                <h5>@Model?.Email</h5>
+            </div>
+        </div>
+
+        <div class="contact-box">
+            <i class="fa fa-phone"></i>
+            <div>
+                <span>Phone</span>
+                <h5>@Model?.Phone</h5>
+            </div>
+        </div>
+
+        <div class="contact-box">
+            <i class="fa fa-map-marker-alt"></i>
+            <div>
+                <span>Address</span>
+                <h5>@Model?.Address</h5>
+            </div>
+        </div>
+
+        <!--  WORKING HOURS  -->
+        <div class="contact-box">
+            <i class="fa fa-clock"></i>
+            <div>
+                <span>Working Hours</span>
+                <h5>
+                    Weekdays: @Model?.WeekdayStart - @Model?.WeekdayEnd <br />
+                    Weekends: @Model?.WeekendStart - @Model?.WeekendEnd
+                </h5>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- UPDATE FORM -->
+<div class="panel">
+
+    <h4>Update Contact</h4>
+
+    <form method="post">
+
+        <div class="form-grid">
+
+            <!-- LEFT SIDE -->
+            <div>
+
+                <label>Email</label>
+                <input asp-for="Email" class="form-control" />
+
+                <label>Phone</label>
+                <input asp-for="Phone" class="form-control" />
+
+                <label>Address</label>
+                <textarea asp-for="Address" class="form-control"></textarea>
+
+            </div>
+
+            <!-- RIGHT SIDE -->
+            <div>
+
+                <label>Weekday Start</label>
+                <input asp-for="WeekdayStart" type="time" class="form-control" />
+
+                <label>Weekday End</label>
+                <input asp-for="WeekdayEnd" type="time" class="form-control" />
+
+                <label>Weekend Start</label>
+                <input asp-for="WeekendStart" type="time" class="form-control" />
+
+                <label>Weekend End</label>
+                <input asp-for="WeekendEnd" type="time" class="form-control" />
+
+            </div>
+
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+
+    </form>
+
+</div>
+
+<!-- STYLES -->
+<style>
+    .contact-grid {
+        display: grid;
+        grid-template-columns: repeat(3,1fr);
+        gap: 15px;
+        margin-top: 15px;
+    }
+
+    .contact-box {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+        .contact-box i {
+            font-size: 20px;
+            color: #ff4d6d;
+        }
+
+        .contact-box span {
+            font-size: 12px;
+            color: #777;
+        }
+
+        .contact-box h5 {
+            margin: 0;
+            font-size: 15px;
+        }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+    }
+
+    .form-actions {
+        margin-top: 20px;
+        text-align: right;
+    }
+
+    .btn-primary {
+        background: #ff4d6d;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+    }
+
+    @@media(max-width:768px) {
+        .contact-grid, .form-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
