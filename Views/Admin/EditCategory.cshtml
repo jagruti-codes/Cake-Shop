@@ -1,0 +1,76 @@
+@model cake_shop.Models.Category
+
+@{
+    ViewData["Title"] = "Edit Category";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+
+<!-- HEADER -->
+<div class="page-header">
+    <div class="page-title">
+        <h2>Edit Category</h2>
+        <p>Create a new bakery Category</p>
+    </div>
+</div>
+
+<!-- FORM PANEL -->
+<div class="panel">
+
+    <form asp-action="EditCategory" method="post" enctype="multipart/form-data">
+
+        <input type="hidden" asp-for="Id" />
+
+        <div class="form-grid">
+
+            <!-- LEFT SIDE -->
+            <div>
+
+                <label>Category Name</label>
+                <input asp-for="Name" />
+
+                <label>Description</label>
+                <textarea asp-for="Description"></textarea>
+
+                <label>Items</label>
+                <input asp-for="ItemCount" type="number" />
+
+                <label>Status</label>
+                <select asp-for="IsActive">
+                    <option value="true">Active</option>
+                    <option value="false">Inactive</option>
+                </select>
+
+            </div>
+
+            <!-- RIGHT SIDE IMAGE -->
+            <div class="upload-box">
+
+                <p><b>Current Image</b></p>
+
+                @if (!string.IsNullOrEmpty(Model.ImagePath))
+                {
+                    <img src="@Model.ImagePath"
+                         style="width:100px;height:100px;border-radius:8px;object-fit:cover;" />
+                }
+
+  
+                <input type="file" name="imageFile" />
+
+            </div>
+
+        </div>
+
+        <div class="form-actions center-btns">
+            <a asp-action="Category" class="action-btn light">Cancel</a>
+            <button type="submit" class="action-btn primary">Update</button>
+        </div>
+
+    </form>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
