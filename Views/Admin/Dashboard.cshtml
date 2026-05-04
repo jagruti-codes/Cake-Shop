@@ -1,0 +1,159 @@
+@model cake_shop.Models.AdminDashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+
+<!-- HEADER -->
+<div class="page-header">
+
+    <div class="page-title">
+        <h2>Overview Dashboard</h2>
+        <p>Welcome back, here is what's happening today.</p>
+    </div>
+
+    <div class="header-actions">
+
+        <!-- LAST 30 DAYS (default) -->
+        <form method="get" asp-action="Dashboard" asp-controller="Admin" style="display:inline;">
+            <input type="hidden" name="range" value="30" />
+            <button type="submit" class="action-btn light">
+                <i class="fa fa-calendar"></i>
+                Last 30 Days
+            </button>
+        </form>
+
+        <!-- 7 DAYS -->
+        <form method="get" asp-action="Dashboard" asp-controller="Admin" style="display:inline;">
+            <input type="hidden" name="range" value="7" />
+            <button type="submit" class="action-btn light">
+                7 Days
+            </button>
+        </form>
+
+        <!-- 90 DAYS -->
+        <form method="get" asp-action="Dashboard" asp-controller="Admin" style="display:inline;">
+            <input type="hidden" name="range" value="90" />
+            <button type="submit" class="action-btn light">
+                90 Days
+            </button>
+        </form>
+
+        <!-- EXPORT REPORT -->
+        <a class="action-btn primary"
+           href="@Url.Action("ExportReport", "Admin", new { range = ViewBag.Range ?? "30" })">
+            <i class="fa fa-download"></i>
+            Export Report
+        </a>
+
+    </div>
+
+</div>
+
+
+<!-- CARDS -->
+<div class="cards">
+
+    <div class="card">
+        <i class="fa fa-users"></i>
+        <h3>Total Users</h3>
+        <h2>@Model.TotalUsers</h2>
+    </div>
+
+    <div class="card">
+        <i class="fa fa-box"></i>
+        <h3>Total Products</h3>
+        <h2>@Model.TotalProducts</h2>
+    </div>
+
+    <div class="card">
+        <i class="fa fa-shopping-cart"></i>
+        <h3>Total Orders</h3>
+        <h2>@Model.TotalOrders</h2>
+    </div>
+
+    <div class="card">
+        <i class="fa fa-tags"></i>
+        <h3>Total Categories</h3>
+        <h2>@Model.TotalCategories</h2>
+    </div>
+
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+    <!-- RECENT ORDERS -->
+  
+
+    <div class="panel large recent-orders">
+
+        <div class="panel-header">
+            <h3>Recent Orders</h3>
+            <a href="@Url.Action("Order", "Admin")" class="view-all">View All</a>
+        </div>
+
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>CUSTOMER</th>
+                    <th>STATUS</th>
+                    <th>TOTAL</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var item in Model.RecentOrders)
+                {
+                    <tr>
+                        <td>#@item.Id</td>
+                        <td>@item.User?.Name</td>
+                        <td>@item.Status</td>
+                        <td>₹@item.TotalAmount</td>
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <!-- TOP PRODUCTS (DYNAMIC) -->
+    <div class="panel small">
+
+        <h3>Top Selling Products</h3>
+
+        @if (Model.TopProducts != null && Model.TopProducts.Any())
+        {
+            foreach (var item in Model.TopProducts)
+            {
+                <div class="product">
+
+                    <img src="@item.ImagePath" />
+
+                    <div class="product-info">
+                        <strong>@item.Name</strong>
+                        <span>@item.TotalSold sales</span>
+                    </div>
+
+                    <div class="product-meta">
+                        <b class="price">₹@item.Price</b>
+                        <small>🔥</small>
+                    </div>
+
+                </div>
+            }
+        }
+        else
+        {
+            <p>No products found</p>
+        }
+
+    </div>
+
+</div>
