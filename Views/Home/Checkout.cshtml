@@ -1,0 +1,252 @@
+﻿@* @model cake_shop.Models.CheckoutViewModel
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<div class="checkout-v2">
+    <section class="checkout-head">
+        <p class="home-eyebrow">Secure Checkout</p>
+        <h1>Complete your order</h1>
+        <p>Fill your details correctly to place the order.</p>
+    </section>
+
+    <section class="checkout-shell">
+        <form asp-action="Checkout" asp-controller="Home" method="post" class="checkout-form-v2" novalidate>
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+
+            <div class="mb-3">
+                <label asp-for="FullName"></label>
+                <input asp-for="FullName" class="form-control" placeholder="Enter full name" />
+                <span asp-validation-for="FullName" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Address"></label>
+                <input asp-for="Address" class="form-control" placeholder="Enter delivery address" />
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Phone"></label>
+                <input asp-for="Phone" class="form-control" placeholder="Enter 10-digit phone number" />
+                <span asp-validation-for="Phone" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="PaymentMethod">Payment Method</label>
+                <select asp-for="PaymentMethod" class="form-control">
+                    <option value="">Select payment method</option>
+                    <option value="Cash on Delivery">Cash on Delivery</option>
+                    <option value="UPI">UPI</option>
+                    <option value="Card">Card</option>
+                </select>
+                <span asp-validation-for="PaymentMethod" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-danger w-100">Place Order</button>
+        </form>
+    </section>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+} *@
+
+
+
+@* 
+@model cake_shop.Models.CheckoutViewModel
+
+<h2>Checkout</h2>
+
+<form asp-action="Checkout" method="post">
+
+    <input asp-for="Name" class="form-control" placeholder="Name" />
+    <input asp-for="Phone" class="form-control" placeholder="Phone" />
+    <input asp-for="Address" class="form-control" placeholder="Address" />
+    <input asp-for="City" class="form-control" placeholder="City" />
+
+    <h4>Payment</h4>
+
+    <label>
+        <input type="radio" name="PaymentMethod" value="COD" checked /> COD
+    </label>
+
+    <label>
+        <input type="radio" name="PaymentMethod" value="Online" /> Online
+    </label>
+
+    <hr />
+
+    <h4>Order Summary</h4>
+
+    @foreach (var item in Model.CartItems)
+    {
+        <p>@item.Product.Name - ₹@(item.Product.Price* item.Quantity)</p>
+    }
+
+    <h3>Total: ₹@Model.TotalAmount</h3>
+
+    <button class="btn btn-success">Place Order</button>
+
+</form> *@
+
+
+
+@model cake_shop.Models.CheckoutViewModel
+
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<div class="checkout-container">
+
+    <div class="checkout-card">
+
+        <h2 class="checkout-title">Checkout</h2>
+        <p class="checkout-subtitle">Please fill your details to complete the order</p>
+
+        @* <form asp-action="Checkout" method="post"> *@
+        <form asp-action="Checkout" method="post">
+
+            <input type="hidden" name="ids" value="@Context.Request.Query["ids"]" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <!-- NAME -->
+            <div class="form-group">
+                <label>Name</label>
+                <input asp-for="Name" class="form-control" placeholder="Enter your name" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <!-- PHONE -->
+            <div class="form-group">
+                <label>Phone</label>
+                <input asp-for="Phone" class="form-control" placeholder="Enter phone number" />
+                <span asp-validation-for="Phone" class="text-danger"></span>
+            </div>
+
+            <!-- ADDRESS -->
+            <div class="form-group">
+                <label>Address</label>
+                <textarea asp-for="Address" class="form-control" placeholder="Enter delivery address"></textarea>
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+
+            <!-- CITY -->
+            <div class="form-group">
+                <label>City</label>
+                <input asp-for="City" class="form-control" placeholder="Enter city" />
+                <span asp-validation-for="City" class="text-danger"></span>
+            </div>
+
+            <!-- PAYMENT -->
+            @* <div class="form-group">
+                <label>Payment Method</label>
+
+                <div class="payment-options">
+                    <label>
+                        <input type="radio" name="PaymentMethod" value="COD" checked /> Cash on Delivery
+                    </label>
+
+                    <label>
+                        <input type="radio" name="PaymentMethod" value="Online" /> Online
+                    </label>
+                </div>
+            </div> *@
+
+
+
+            <hr />
+
+            <!-- ORDER SUMMARY -->
+            <h4>Order Summary</h4>
+
+            @* <div class="order-summary">
+                @foreach (var item in Model.CartItems)
+                {
+                    <div class="summary-item">
+                        <span>@item.Product.Name</span>
+                        <span>₹@(item.Product.Price* item.Quantity)</span>
+                    </div>
+                }
+            </div> *@
+
+            @* <div class="order-summary">
+                @foreach (var item in Model.CartItems)
+                {
+                    <div class="summary-item" style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
+
+                        <img src="@item.Product.ImagePath"
+                             style="width:60px;height:60px;object-fit:cover;border-radius:8px;" />
+
+                        <div style="flex:1;">
+                            <div><b>@item.Product.Name</b></div>
+                            <div>₹@item.Product.Price × @item.Quantity</div>
+                        </div>
+
+                        <div>
+                            ₹@(item.Product.Price* item.Quantity)
+                        </div>
+
+                    </div>
+                }
+            </div> *@
+
+            <div class="order-summary">
+
+                @foreach (var item in Model.CartItems)
+                {
+                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+
+                        <img src="@item.Product!.ImagePath"
+                             style="width:60px;height:60px;object-fit:cover;border-radius:8px;" />
+
+                        <div style="flex:1;">
+                            <b>@item.Product.Name</b><br />
+                            ₹@item.Product.Price × @item.Quantity
+                        </div>
+
+                        <div>
+                            ₹@(item.Product.Price* item.Quantity)
+                        </div>
+
+                    </div>
+                }
+
+            </div>
+
+            <hr />
+
+            <h3>Total: ₹@Model.TotalAmount</h3>
+
+
+
+            <h3 class="total-amount">Total: ₹@Model.TotalAmount</h3>
+
+            <!-- BUTTONS -->
+            <div class="checkout-buttons">
+
+                @* <a href="/Cart" class="btn btn-outline-secondary">
+                    Cancel
+                </a> *@
+                <a asp-controller="Home" asp-action="Cart" class="btn btn-outline-secondary">
+                    Cancel
+                </a>
+
+                <button type="submit" class="btn btn-success">
+                    Place Order
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
