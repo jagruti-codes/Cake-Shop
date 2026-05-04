@@ -1,0 +1,199 @@
+﻿
+
+
+@model List<cake_shop.Models.Product>
+
+@{
+    ViewData["Title"] = "Cakes";
+}
+
+<div class="cakes-v2">
+
+    <section class="cakes-head">
+        <p class="home-eyebrow">Our Menu</p>
+        <h1>Delicious cakes for every taste and celebration</h1>
+        <p>Choose your favorite cake</p>
+    </section>
+
+    <!-- FILTER BUTTONS (DYNAMIC) -->
+    <section class="cakes-filters text-center mb-4">
+
+        <button class="filter-btn active" data-filter="all">All</button>
+
+        @foreach (var cat in Model.Select(p => p.Category?.Name).Distinct())
+        {
+            if (!string.IsNullOrEmpty(cat))
+            {
+                var filterName = cat.ToLower().Replace(" ", "-");
+
+                <button class="filter-btn" data-filter="@filterName">
+                    @cat
+                </button>
+            }
+        }
+
+    </section>
+
+    <!-- PRODUCTS GRID -->
+    <section class="cakes-grid row g-4">
+        @foreach (var item in Model)
+        {
+            var categoryClass = item.Category?.Name?
+            .ToLower()
+            .Replace(" ", "-") ?? "other";
+
+            <div class="col-md-6 col-lg-4 cake-item @categoryClass">
+
+                <article class="bake-card">
+
+                    <img src="@item.ImagePath" alt="@item.Name" />
+
+                    <div class="bake-card__content">
+
+
+                        <p class="cake-tag">@item.Category?.Name</p>
+
+                        <h4 class="cake-name">@item.Name</h4>
+
+                        <p class="price">₹@item.Price</p>
+
+                        <div class="cake-buttons">
+
+                       
+                            <button onclick="addToWishlist(@item.Id)" class="btn btn-outline-danger">
+                                <i class="fa fa-heart"></i>   Add to Wishlist
+                            </button>
+
+
+                            <button onclick="addToCart(@item.Id)" class="btn btn-outline-dark">
+                                <i class="fa fa-shopping-cart"></i>    Add To Cart
+                            </button>
+
+                       
+                            <button class="buy" onclick="buyNow(@item.Id)">Buy Now</button>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+            </div>
+        }
+
+    </section>
+
+    <p id="cakesActionMessage" class="cakes-message"></p>
+</div>
+
+@section Scripts {
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            // =========================
+            // 🔍 SEARCH FUNCTIONALITY
+            // =========================
+            let searchData = localStorage.getItem("searchResults");
+
+            if (searchData) {
+
+                let products = JSON.parse(searchData);
+                let allCards = document.querySelectorAll(".cake-item");
+
+                // Hide all cards first
+                allCards.forEach(card => {
+                    card.style.display = "none";
+                });
+
+                // Show matched cards
+                products.forEach(p => {
+
+                    allCards.forEach(card => {
+
+                        let name = card.querySelector(".cake-name").innerText.toLowerCase();
+
+                        if (name.includes(p.name.toLowerCase())) {
+                            card.style.display = "block";
+                        }
+
+                    });
+
+                });
+
+                // Clear storage after use
+                localStorage.removeItem("searchResults");
+            }
+
+
+            // =========================
+            // 🎯 FILTER BUTTONS
+            // =========================
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const cakeCards = document.querySelectorAll('.cake-item');
+
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+
+                    filterButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    const filter = btn.dataset.filter;
+
+                    cakeCards.forEach(cake => {
+
+                        const visible = filter === 'all' || cake.classList.contains(filter);
+
+                        cake.style.display = visible ? 'block' : 'none';
+                    });
+                });
+            });
+
+        });
+
+
+        // =========================
+        // ❤️ ADD TO WISHLIST
+        // =========================
+        function addToWishlist(productId) {
+            fetch('/Home/AddToWishlist', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ productId: productId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert(data.message);
+            });
+        }
+
+
+        // =========================
+        // 🛒 ADD TO CART
+        // =========================
+        function addToCart(productId) {
+            fetch('/Home/AddToCart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ productId: productId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert(data.message);
+            });
+        }
+
+
+        // =========================
+        // ⚡ BUY NOW
+        // =========================
+        function buyNow(productId) {
+            window.location.href = "/Home/Checkout?ids=" + productId;
+        }
+
+    </script>
+}
