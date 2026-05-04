@@ -1,0 +1,45 @@
+
+
+@{
+    ViewData["Title"] = "Verify OTP";
+}
+
+<h2>Email Verification</h2>
+
+<form asp-action="VerifyOTP" method="post">
+    <input type="hidden" name="email" value="@ViewBag.Email" />
+
+    <label>Enter OTP</label>
+    <input type="text" name="otp" required />
+
+    <button type="submit">Verify</button>
+</form>
+
+<br />
+
+<a id="resendBtn" asp-action="ResendOTP" asp-route-email="@ViewBag.Email">
+    Resend OTP
+</a>
+
+<p id="timer"></p>
+
+<script>
+    let time = 30;
+    const timer = document.getElementById("timer");
+    const btn = document.getElementById("resendBtn");
+
+    btn.style.pointerEvents = "none";
+
+    let interval = setInterval(() => {
+        timer.innerText = "Resend in " + time + " sec";
+        time--;
+
+        if (time < 0) {
+            clearInterval(interval);
+            timer.innerText = "";
+            btn.style.pointerEvents = "auto";
+        }
+    }, 1000);
+</script>
+
+
