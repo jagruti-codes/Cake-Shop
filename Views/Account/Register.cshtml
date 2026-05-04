@@ -1,0 +1,89 @@
+@model cake_shop.Models.RegisterViewModel
+@{
+    ViewData["Title"] = "Register";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/login.css" />
+}
+
+<div class="auth-body auth-register">
+    <div class="auth-bg-shape auth-bg-shape-one"></div>
+    <div class="auth-bg-shape auth-bg-shape-two"></div>
+
+    <main class="auth-shell">
+        <section class="auth-card">
+            <aside class="auth-brand">
+                <p class="brand-chip">Join SweetCake</p>
+                <h1>Create your classy bakery account.</h1>
+                <p>Build your profile to place custom orders, track deliveries, and enjoy exclusive bakery offers.</p>
+                <div class="brand-stats">
+                    <span>Handcrafted Quality</span>
+                    <span>Easy Order Tracking</span>
+                </div>
+            </aside>
+
+            <section class="auth-form-panel">
+                <h2>Create Account</h2>
+                <p class="auth-subtitle">Fill in your details to get started.</p>
+
+                <form asp-action="Register" asp-controller="Account" method="post" class="auth-form">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+
+                    <div class="form-group" style="--delay: .05s;">
+                        <label asp-for="Name"></label>
+                        <input asp-for="Name" class="form-control auth-input" placeholder="Your full name" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group" style="--delay: .09s;">
+                        <label asp-for="Email"></label>
+                        <input asp-for="Email" class="form-control auth-input" placeholder="you@sweetcake.com" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group" style="--delay: .13s;">
+                        <label asp-for="Phone"></label>
+                        <input asp-for="Phone" class="form-control auth-input" placeholder="Phone number" />
+                        <span asp-validation-for="Phone" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group" style="--delay: .17s;">
+                        <label asp-for="Password"></label>
+                        <input asp-for="Password" class="form-control auth-input" type="password" placeholder="Create password" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group" style="--delay: .21s;">
+                        <label asp-for="ConfirmPassword"></label>
+                        <input asp-for="ConfirmPassword" class="form-control auth-input" type="password" placeholder="Confirm password" />
+                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                    </div>
+
+                    <button type="submit" class="auth-btn" style="--delay: .25s;">Create Account</button>
+
+                  
+
+                    @if (TempData["Message"] != null)
+                    {
+                        <p class="success-msg">@TempData["Message"]</p>
+                    }
+
+                    <p class="switch-auth" style="--delay: .28s;">
+                        Already have an account?
+                        <a asp-action="Login" asp-controller="Account" class="auth-link">Sign in</a>
+                    </p>
+                </form>
+            </section>
+        </section>
+    </main>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
