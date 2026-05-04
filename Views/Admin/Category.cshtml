@@ -1,0 +1,222 @@
+
+@model List<cake_shop.Models.Category>
+
+@{
+    ViewData["Title"] = "Category";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<!--  SUCCESS ALERT -->
+<div id="successAlert" class="alert success" style="display:none;">
+    Category saved successfully!
+</div>
+
+
+<!-- HEADER -->
+<div class="page-header">
+    <div class="page-title">
+        <h2>Manage Categories</h2>
+        <p>Manage bakery categories</p>
+    </div>
+
+    <div class="header-actions">
+        <a asp-action="AddCategory" class="action-btn primary">
+            + Add Category
+        </a>
+      
+    </div>
+</div>
+
+<!-- FORM -->
+<div class="panel" id="categoryForm" style="display:none;">
+
+    <h3 id="formTitle">Add Category</h3>
+
+    <div class="form-grid">
+        <div>
+            <label>Category Name</label>
+            <input type="text" id="name" />
+
+            <label>Description</label>
+            <textarea id="desc"></textarea>
+
+            <label>Items</label>
+            <input type="number" id="items" />
+
+            <label>Status</label>
+            <select id="status">
+                <option>Active</option>
+                <option>Inactive</option>
+            </select>
+        </div>
+
+        <div class="upload-box">
+            <i class="fa fa-cloud-upload-alt upload-icon"></i>
+            <p><b>Upload Category Image</b></p>
+            <small>PNG, JPG up to 5MB</small>
+        </div>
+    </div>
+
+    <div class="form-actions center-btns">
+        <button class="action-btn light" onclick="closeForm()">Cancel</button>
+        <button class="action-btn primary" onclick="saveCategory()">Save</button>
+    </div>
+
+</div>
+
+<!-- TABLE PANEL -->
+<div class="panel">
+
+    <!-- SEARCH + FILTER -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; gap:10px;">
+
+        <div class="search" style="flex:1;">
+            <i class="fa fa-search"></i>
+            <input type="text" id="searchBox" placeholder="Search categories..." />
+        </div>
+
+   
+
+
+        <select id="statusFilter" class="status-dropdown">
+            <option value="all">All Status</option>
+            <option value="active">🟢 Active</option>
+            <option value="inactive">🔴 Inactive</option>
+        </select>
+
+    </div>
+
+    <!-- TABLE -->
+    <table id="categoryTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>IMAGE</th>
+                <th>CATEGORY NAME</th>
+                <th>DESCRIPTION</th>
+                <th>ITEMS</th>
+                <th>STATUS</th>
+                <th>ACTIONS</th>
+            </tr>
+        </thead>
+
+
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>#CAT-@item.Id</td>
+                    <td>
+                        <img src="@item.ImagePath" style="width:40px;height:40px;border-radius:6px;" />
+                    </td>
+                    <td>@item.Name</td>
+                    <td>@item.Description</td>
+                    <td>@item.ItemCount</td>
+                    <td>
+                        <span class="status @(item.IsActive ? "delivered" : "processing")">
+                            @(item.IsActive ? "Active" : "Inactive")
+                        </span>
+                    </td>
+                   
+
+                    <td class="actions">
+
+                        <a asp-action="EditCategory" asp-route-id="@item.Id">
+                            <i class="fa fa-pen edit"></i>
+                        </a>
+
+                       
+                        <a href="javascript:void(0);" onclick="confirmDelete(@item.Id)">
+                            <i class="fa fa-trash delete"></i>
+                        </a>
+
+                      
+
+                    </td>
+                </tr>
+            }
+        </tbody>
+
+
+
+    </table>
+
+    <!-- PAGINATION -->
+    <div class="pagination-bar">
+
+        <div id="pageInfo"></div>
+
+
+    </div>
+
+</div>
+
+
+<!--  FILTER SCRIPT -->
+<script>
+    document.getElementById("searchBox").addEventListener("keyup", filterTable);
+    document.getElementById("statusFilter").addEventListener("change", filterTable);
+
+    function filterTable() {
+
+        let search = document.getElementById("searchBox").value.toLowerCase();
+        let statusFilter = document.getElementById("statusFilter").value.toLowerCase();
+
+        let rows = document.querySelectorAll("#categoryTable tbody tr");
+
+        rows.forEach(row => {
+
+            let text = row.innerText.toLowerCase();
+
+            // FIXED STATUS COLUMN INDEX
+            let status = row.cells[5].innerText.toLowerCase().trim();
+
+            let matchSearch = text.includes(search);
+
+            let matchStatus =
+                statusFilter === "all" ||
+                status === statusFilter;
+
+            row.style.display = (matchSearch && matchStatus) ? "" : "none";
+        });
+    }
+</script>
+
+<!-- SUCCESS POPUP -->
+@if (TempData["success"] != null)
+{
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: '@TempData["success"]',
+                showConfirmButton: false,
+                timer: 2000
+            });
+        });
+    </script>
+}
+
+<!-- DELETE CONFIRMATION -->
+<script>
+    function confirmDelete(id) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "This category will be deleted!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ff4d6d',
+            cancelButtonColor: '#aaa',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = '/Admin/DeleteCategory/' + id;
+            }
+        });
+    }
+</script>
+
+
+
+
