@@ -1,0 +1,121 @@
+
+
+
+@model cake_shop.Models.AppUser
+@{
+    ViewData["Title"] = "Settings";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    var initials = string.Join("", (Model.Name ?? "")
+        .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+        .Select(x => x[0]))
+        .ToUpper();
+
+    if (string.IsNullOrWhiteSpace(initials))
+    {
+        initials = "AD";
+    }
+}
+
+
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+    <div class="page-title">
+        <h2>Settings</h2>
+        <p>Manage your admin profile and system preferences</p>
+    </div>
+</div>
+
+<!-- GRID STYLE  -->
+<div class="dashboard-grid">
+
+    <!-- PROFILE CARD -->
+    <div class="panel">
+
+        <h4><i class="fa fa-user"></i> Admin Profile</h4>
+
+        <div class="profile-section">
+
+            <div class="profile-left">
+                <div class="profile-avatar-large">@initials</div>
+                <p class="text-muted">Admin Account</p>
+            </div>
+
+            <div class="profile-right">
+
+                <form asp-action="Setting" method="post">
+
+                    <input type="hidden" name="Id" value="@Model.Id" />
+
+                    <div class="form-grid">
+
+                        <div class="form-group">
+                            <label>Name</label>
+                            <input name="Name" value="@Model.Name" class="form-control" />
+                        </div>
+
+                        <div class="form-group">
+                            <label>Email (Locked)</label>
+                            <input value="@Model.Email" class="form-control" disabled />
+                        </div>
+
+                        <div class="form-group">
+                            <label>Phone</label>
+                            <input name="Phone" value="@Model.Phone" class="form-control" />
+                        </div>
+
+                    </div>
+
+                    <button type="submit" class="btn btn-danger mt-3">
+                        Save Changes
+                    </button>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- SECURITY CARD -->
+    <div class="panel">
+        <h4><i class="fa fa-shield-alt"></i> Security</h4>
+
+        <div class="setting-item">
+            <div>
+                <strong>Password</strong>
+                <p>Change your admin password</p>
+            </div>
+            <a asp-controller="Account" asp-action="ChangePassword" class="btn-outline">
+                Update
+            </a>
+        </div>
+
+        <div class="setting-item">
+            <div>
+                <strong>Session Security</strong>
+                <p>Auto logout after inactivity</p>
+            </div>
+
+            <label class="toggle">
+                <input type="checkbox" checked />
+                <span></span>
+            </label>
+        </div>
+    </div>
+
+    <!-- SYSTEM INFO CARD -->
+    <div class="panel">
+        <h4><i class="fa fa-cog"></i> System Info</h4>
+
+        <div class="info-box">
+            <p><strong>Role:</strong> Admin</p>
+            <p><strong>Email:</strong> @Model.Email</p>
+            <p><strong>Status:</strong> Active</p>
+        </div>
+    </div>
+
+</div>
+
+
+
