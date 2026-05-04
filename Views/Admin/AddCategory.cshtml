@@ -1,0 +1,69 @@
+
+
+@model cake_shop.Models.Category
+
+@{
+    ViewData["Title"] = "Add Category";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+<!-- HEADER -->
+<div class="page-header">
+    <div class="page-title">
+        <h2>Add Category</h2>
+        <p>Create a new bakery category</p>
+    </div>
+</div>
+
+<!-- FORM PANEL -->
+<div class="panel">
+
+    <form asp-action="AddCategory" method="post" enctype="multipart/form-data">
+
+        <div class="form-grid">
+
+            <!-- LEFT SIDE -->
+            <div>
+                <label>Category Name</label>
+                <input asp-for="Name" />
+                <span asp-validation-for="Name"></span>
+
+                <label>Description</label>
+                <textarea asp-for="Description"></textarea>
+
+                <label>Items</label>
+                <input asp-for="ItemCount" type="number" />
+
+                <label>Status</label>
+                <select asp-for="IsActive">
+                    <option value="true">Active</option>
+                    <option value="false">Inactive</option>
+                </select>
+            </div>
+
+            <!-- RIGHT SIDE (IMAGE UPLOAD) -->
+            <div class="upload-box">
+                <i class="fa fa-cloud-upload-alt upload-icon"></i>
+
+                <p><b>Upload Category Image</b></p>
+                <small>PNG, JPG up to 5MB</small>
+
+                <input type="file" name="imageFile" style="margin-top:10px;" />
+            </div>
+
+        </div>
+
+        <!-- BUTTONS -->
+        <div class="form-actions center-btns">
+            <a asp-action="Category" class="action-btn light">Cancel</a>
+            <button type="submit" class="action-btn primary">Save Category</button>
+        </div>
+
+    </form>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
