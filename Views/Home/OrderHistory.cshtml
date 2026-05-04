@@ -1,0 +1,813 @@
+﻿@* 
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860 *@
+
+@{
+}
+@* @model List<cake_shop.Models.Order>
+
+@{
+    ViewData["Title"] = "My Orders";
+}
+
+<div class="container mt-5">
+
+    <h2>📦 My Orders</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            No orders found.
+        </div>
+    }
+    else
+    {
+        foreach (var order in Model)
+        {
+            <div class="card mb-3">
+
+                <div class="card-header d-flex justify-content-between">
+                    <b>Order #@order.Id</b>
+                    <span>@order.CreatedAt.ToString("dd-MMM-yyyy")</span>
+                </div>
+
+                <div class="card-body">
+
+                    <p><b>Total:</b> ₹@order.TotalAmount</p>
+                    <p><b>Status:</b> @order.Status</p>
+
+                    <hr />
+
+                    @foreach (var item in order.Items)
+                    {
+                        <div class="d-flex align-items-center mb-2">
+
+                            <img src="@item.Product?.ImagePath"
+                                 style="width:40px;height:40px;border-radius:5px;" />
+
+                            <div class="ms-2 flex-grow-1">
+                                @item.Product?.Name
+                            </div>
+
+                            <div>
+                                ₹@item.Price × @item.Quantity
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+        }
+    }
+
+</div> *@
+@* 
+@model List<cake_shop.Models.Order>
+
+@{
+    ViewData["Title"] = "My Orders";
+}
+
+<div class="container mt-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>📦 My Orders</h2>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            No orders found.
+        </div>
+    }
+    else
+    {
+        foreach (var order in Model)
+        {
+            <div class="card mb-4 shadow-sm border-0">
+
+                <!-- ORDER HEADER -->
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+
+                    <div>
+                        <b>Order #@order.Id</b>
+                        <div class="text-muted small">
+                            @order.CreatedAt.ToString("dd-MMM-yyyy hh:mm tt")
+                        </div>
+                    </div>
+
+                    <div class="text-end">
+
+                        <!-- STATUS BADGE -->
+                        @if (order.Status == "Cancelled")
+                        {
+                            <span class="badge bg-danger">Cancelled</span>
+                        }
+                        else if (order.Status == "Delivered")
+                        {
+                            <span class="badge bg-success">Delivered</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning text-dark">@order.Status</span>
+                        }
+
+                        <!-- CANCEL BUTTON -->
+                        @if (order.Status != "Cancelled")
+                        {
+                            <div class="mt-2">
+                                <a asp-action="CancelOrder"
+                                   asp-route-id="@order.Id"
+                                   class="btn btn-sm btn-outline-danger"
+                                   onclick="return confirm('Cancel this order?');">
+                                    Cancel Order
+                                </a>
+                            </div>
+                        }
+
+                    </div>
+
+                </div>
+
+                <!-- ORDER BODY -->
+                <div class="card-body">
+
+                    <p class="mb-2">
+                        <b>Total:</b> ₹@order.TotalAmount
+                    </p>
+
+                    <hr />
+
+                    <!-- ITEMS -->
+                    @foreach (var item in order.Items)
+                    {
+                        <div class="d-flex align-items-center mb-3">
+
+                            <img src="@item.Product?.ImagePath"
+                                 style="width:50px;height:50px;object-fit:cover;border-radius:8px;border:1px solid #ddd;" />
+
+                            <div class="ms-3 flex-grow-1">
+                                <div class="fw-bold">@item.Product?.Name</div>
+                                <small class="text-muted">
+                                    ₹@item.Price × @item.Quantity
+                                </small>
+                            </div>
+
+                            <div class="fw-bold">
+                                ₹@(item.Price* item.Quantity)
+                            </div>
+
+                        </div>
+                    }
+
+
+                </div>
+
+            </div>
+        }
+    }
+
+</div> *@
+
+
+
+@* @model List<cake_shop.Models.Order>
+
+@{
+    ViewData["Title"] = "My Orders";
+}
+
+<style>
+    /* ⭐ STAR RATING UI */
+    .rating {
+        direction: rtl;
+        unicode-bidi: bidi-override;
+        display: inline-flex;
+        margin-top: 5px;
+    }
+
+        .rating input {
+            display: none;
+        }
+
+        .rating label {
+            font-size: 22px;
+            color: #ccc;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-right: 2px;
+        }
+
+            .rating label:hover,
+            .rating label:hover ~ label,
+            .rating input:checked ~ label {
+                color: gold;
+            }
+
+    .review-box {
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 6px;
+    }
+</style>
+
+<div class="container mt-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>📦 My Orders</h2>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            No orders found.
+        </div>
+    }
+    else
+    {
+        foreach (var order in Model)
+        {
+            <div class="card mb-4 shadow-sm border-0">
+
+                <!-- ORDER HEADER -->
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+
+                    <div>
+                        <b>Order #@order.Id</b>
+                        <div class="text-muted small">
+                            @order.CreatedAt.ToString("dd-MMM-yyyy hh:mm tt")
+                        </div>
+                    </div>
+
+                    <div class="text-end">
+
+                        @if (order.Status == "Cancelled")
+                        {
+                            <span class="badge bg-danger">Cancelled</span>
+                        }
+                        else if (order.Status == "Delivered")
+                        {
+                            <span class="badge bg-success">Delivered</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning text-dark">@order.Status</span>
+                        }
+
+                        @if (order.Status != "Cancelled")
+                        {
+                            <div class="mt-2">
+                                <a asp-action="CancelOrder"
+                                   asp-route-id="@order.Id"
+                                   class="btn btn-sm btn-outline-danger"
+                                   onclick="return confirm('Cancel this order?');">
+                                    Cancel Order
+                                </a>
+                            </div>
+                        }
+
+                    </div>
+
+                </div>
+
+                <!-- ORDER BODY -->
+                <div class="card-body">
+
+                    <p class="mb-3">
+                        <b>Total:</b> ₹@order.TotalAmount
+                    </p>
+
+                    <hr />
+
+                    <!-- ITEMS -->
+                    @foreach (var item in order.Items)
+                    {
+                        <div class="d-flex align-items-start mb-4">
+
+                            <!-- PRODUCT IMAGE -->
+                            <img src="@item.Product?.ImagePath"
+                                 style="width:55px;height:55px;object-fit:cover;border-radius:8px;border:1px solid #ddd;" />
+
+                            <div class="ms-3 flex-grow-1">
+
+                                <!-- NAME -->
+                                <div class="fw-bold">@item.Product?.Name</div>
+
+                                <small class="text-muted">
+                                    ₹@item.Price × @item.Quantity
+                                </small>
+
+                                <!-- ⭐ REVIEW FORM -->
+                                <form asp-action="AddReview"
+                                      method="post"
+                                      class="mt-2">
+
+                                    <input type="hidden" name="productId" value="@item.ProductId" />
+
+                                    <!-- STAR RATING -->
+                                    <div class="rating">
+                                        @for (int i = 5; i >= 1; i--)
+                                        {
+                                            <input type="radio"
+                                                   id="star-@item.ProductId-@i"
+                                                   name="rating"
+                                                   value="@i" />
+                                            <label for="star-@item.ProductId-@i">★</label>
+                                        }
+                                    </div>
+
+                                    <!-- REVIEW TEXT -->
+                                    <textarea name="review"
+                                  class="form-control mt-2 review-box"
+                                  rows="2"
+                                  placeholder="Write your review..."></textarea>
+
+                                    <!-- SUBMIT -->
+                                    <button type="submit"
+                                            class="btn btn-sm btn-primary mt-2">
+                                        Submit Review
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                            <!-- PRICE -->
+                            <div class="fw-bold">
+                                ₹@(item.Price* item.Quantity)
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+        }
+    }
+
+</div>
+
+
+@model List<cake_shop.Models.Order>
+
+@{
+    ViewData["Title"] = "My Orders";
+    var reviews = ViewBag.Reviews as List<cake_shop.Models.RatingReview>;
+}
+
+<style>
+    .rating {
+        direction: rtl;
+        unicode-bidi: bidi-override;
+        display: inline-flex;
+    }
+
+        .rating input {
+            display: none;
+        }
+
+        .rating label {
+            font-size: 20px;
+            color: #ccc;
+            cursor: pointer;
+            margin-right: 2px;
+        }
+
+            .rating label:hover,
+            .rating label:hover ~ label,
+            .rating input:checked ~ label {
+                color: gold;
+            }
+</style>
+
+<div class="container mt-5">
+
+    ```
+    <h2 class="mb-4">📦 My Orders</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            No orders found.
+        </div>
+    }
+    else
+    {
+        foreach (var order in Model)
+        {
+            <div class="card mb-4 shadow-sm border-0">
+
+                <!-- HEADER -->
+                <div class="card-header bg-light d-flex justify-content-between">
+                    <div>
+                        <b>Order #@order.Id</b><br />
+                        <small>@order.CreatedAt.ToString("dd-MMM-yyyy hh:mm tt")</small>
+                    </div>
+
+                    <div>
+                        @if (order.Status == "Cancelled")
+                        {
+                            <span class="badge bg-danger">Cancelled</span>
+                        }
+                        else if (order.Status == "Delivered")
+                        {
+                            <span class="badge bg-success">Delivered</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning text-dark">@order.Status</span>
+                        }
+                    </div>
+                </div>
+
+                <!-- BODY -->
+                <div class="card-body">
+
+                    <p><b>Total:</b> ₹@order.TotalAmount</p>
+
+                    <hr />
+
+                    @foreach (var item in order.Items)
+                    {
+                        var existingReview = reviews?.FirstOrDefault(r => r.ProductId == item.ProductId);
+
+                        <div class="d-flex align-items-start mb-4">
+
+                            <!-- IMAGE -->
+                            <img src="@item.Product?.ImagePath"
+                                 style="width:55px;height:55px;border-radius:8px;border:1px solid #ddd;" />
+
+                            <div class="ms-3 flex-grow-1">
+
+                                <!-- NAME -->
+                                <div class="fw-bold">@item.Product?.Name</div>
+
+                                <small class="text-muted">
+                                    ₹@item.Price × @item.Quantity
+                                </small>
+
+                                <!-- ================= REVIEW SECTION ================= -->
+                                @if (existingReview != null)
+                                {
+                                    <div class="mt-2 p-2 border rounded">
+
+                                        <!-- ⭐ DISPLAY -->
+                                        <div>
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                if (i <= existingReview.Rating)
+                                                {
+                                                    <span style="color:gold;">★</span>
+                                                }
+                                                else
+                                                {
+                                                    <span style="color:#ccc;">★</span>
+                                                }
+                                            }
+                                        </div>
+
+                                        <p class="mb-1">@existingReview.Review</p>
+
+                                        <!-- BUTTONS -->
+                                        <button class="btn btn-sm btn-warning"
+                                                onclick="toggleEdit(@existingReview.Id)">
+                                            Edit
+                                        </button>
+
+                                        <a asp-action="DeleteReview"
+                                           asp-route-id="@existingReview.Id"
+                                           class="btn btn-sm btn-danger"
+                                           onclick="return confirm('Delete review?');">
+                                            Delete
+                                        </a>
+
+                                        <!-- 🔥 HIDDEN EDIT FORM -->
+                                        <div id="editForm-@existingReview.Id"
+                                             style="display:none;"
+                                             class="mt-2">
+
+                                            <form asp-action="EditReview" method="post">
+                                                <input type="hidden" name="Id" value="@existingReview.Id" />
+
+                                                <div class="rating">
+                                                    @for (int i = 5; i >= 1; i--)
+                                                    {
+                                                        <input type="radio"
+                                                               name="Rating"
+                                                               value="@i"
+                                                               @(existingReview.Rating == i ? "checked" : "") />
+                                                        <label>★</label>
+                                                    }
+                                                </div>
+
+                                                <textarea name="Review"
+                                          class="form-control mt-2"
+                                          rows="2">@existingReview.Review</textarea>
+
+                                                <button class="btn btn-sm btn-success mt-2">
+                                                    Update
+                                                </button>
+                                            </form>
+
+                                        </div>
+
+                                    </div>
+                                }
+                                else
+                                {
+                                    <!-- ADD REVIEW -->
+                                    <form asp-action="AddReview" method="post" class="mt-2">
+
+                                        <input type="hidden" name="productId" value="@item.ProductId" />
+
+                                        <div class="rating">
+                                            @for (int i = 5; i >= 1; i--)
+                                            {
+                                                <input type="radio"
+                                                       name="rating"
+                                                       value="@i" />
+                                                <label>★</label>
+                                            }
+                                        </div>
+
+                                        <textarea name="review"
+                                  class="form-control mt-2"
+                                  rows="2"
+                                  placeholder="Write your review..."></textarea>
+
+                                        <button type="submit"
+                                                class="btn btn-sm btn-primary mt-2">
+                                            Submit Review
+                                        </button>
+
+                                    </form>
+                                }
+
+                                <!-- ================================================= -->
+
+                            </div>
+
+                            <!-- PRICE -->
+                            <div class="fw-bold">
+                                ₹@(item.Price* item.Quantity)
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+        }
+    }
+    ```
+
+</div>
+
+<script>
+    function toggleEdit(id) {
+        var form = document.getElementById("editForm-" + id);
+
+        if (form.style.display === "none") {
+            form.style.display = "block";
+        } else {
+            form.style.display = "none";
+        }
+    }
+</script> *@
+
+
+
+
+@model List<cake_shop.Models.Order>
+
+@{
+    ViewData["Title"] = "My Orders";
+    var reviews = ViewBag.Reviews as List<cake_shop.Models.RatingReview>;
+}
+
+<style>
+    .rating {
+        direction: rtl;
+        unicode-bidi: bidi-override;
+        display: inline-flex;
+    }
+
+        .rating input {
+            display: none;
+        }
+
+        .rating label {
+            font-size: 20px;
+            color: #ccc;
+            cursor: pointer;
+            margin-right: 2px;
+        }
+
+            .rating label:hover,
+            .rating label:hover ~ label,
+            .rating input:checked ~ label {
+                color: gold;
+            }
+</style>
+
+<div class="container mt-5">
+
+    <h2 class="mb-4">📦 My Orders</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            No orders found.
+        </div>
+    }
+    else
+    {
+        foreach (var order in Model)
+        {
+            <div class="card mb-4 shadow-sm border-0">
+
+                <!-- ORDER HEADER -->
+                <div class="card-header bg-light d-flex justify-content-between">
+                    <div>
+                        <b>Order #@order.Id</b><br />
+                        <small>@order.CreatedAt.ToString("dd-MMM-yyyy hh:mm tt")</small>
+                    </div>
+
+                    <div>
+                        @if (order.Status == "Cancelled")
+                        {
+                            <span class="badge bg-danger">Cancelled</span>
+                        }
+                        else if (order.Status == "Delivered")
+                        {
+                            <span class="badge bg-success">Delivered</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning text-dark">@order.Status</span>
+                        }
+                    </div>
+                </div>
+
+                <!-- ORDER BODY -->
+                <div class="card-body">
+
+                    <p><b>Total:</b> ₹@order.TotalAmount</p>
+
+                    <hr />
+
+                    @foreach (var item in order.Items)
+                    {
+                        var existingReview = reviews?.FirstOrDefault(r => r.ProductId == item.ProductId);
+
+                        <div class="d-flex align-items-start mb-4">
+
+                            <!-- PRODUCT IMAGE -->
+                            <img src="@item.Product?.ImagePath"
+                                 style="width:55px;height:55px;border-radius:8px;border:1px solid #ddd;" />
+
+                            <div class="ms-3 flex-grow-1">
+
+                                <!-- PRODUCT NAME -->
+                                <div class="fw-bold">@item.Product?.Name</div>
+
+                                <small class="text-muted">
+                                    ₹@item.Price × @item.Quantity
+                                </small>
+
+                                <!-- ================= REVIEW SECTION ================= -->
+                                @if (existingReview != null)
+                                {
+                                    <!-- SHOW EXISTING REVIEW -->
+                                    <div class="mt-2 p-2 border rounded">
+
+                                        <div class="rating">
+                                            @for (int i = 5; i >= 1; i--)
+                                            {
+                                                if (i <= existingReview.Rating)
+                                                {
+                                                    <label style="color:gold;">★</label>
+                                                }
+                                                else
+                                                {
+                                                    <label>★</label>
+                                                }
+                                            }
+                                        </div>
+
+                                        <p class="mb-1">@existingReview.Review</p>
+
+                                        <button class="btn btn-sm btn-warning"
+                                                onclick="toggleEdit(@existingReview.Id)">
+                                            Edit
+                                        </button>
+
+                                        <a asp-action="DeleteReview"
+                                           asp-route-id="@existingReview.Id"
+                                           class="btn btn-sm btn-danger"
+                                           onclick="return confirm('Delete review?');">
+                                            Delete
+                                        </a>
+
+                                        <!-- EDIT FORM -->
+                                        <div id="editForm-@existingReview.Id"
+                                             style="display:none;"
+                                             class="mt-2">
+
+                                            <form asp-action="EditReview" method="post">
+
+                                                <input type="hidden" name="Id" value="@existingReview.Id" />
+
+                                                <div class="rating">
+                                                    @for (int i = 5; i >= 1; i--)
+                                                    {
+                                                        <input type="radio"
+                                                               id="edit-star-@existingReview.Id-@i"
+                                                               name="Rating"
+                                                               value="@i"
+                                                               @(existingReview.Rating == i ? "checked" : "") />
+
+                                                        <label for="edit-star-@existingReview.Id-@i">★</label>
+                                                    }
+                                                </div>
+
+                                                <textarea name="Review"
+                                          class="form-control mt-2"
+                                          rows="2">@existingReview.Review</textarea>
+
+                                                <button class="btn btn-sm btn-success mt-2">
+                                                    Update
+                                                </button>
+
+                                            </form>
+
+                                        </div>
+
+                                    </div>
+                                }
+                                else
+                                {
+                                    <!-- ADD REVIEW FORM -->
+                                    <form asp-action="AddReview" method="post" class="mt-2">
+
+                                        <input type="hidden" name="productId" value="@item.ProductId" />
+
+                                        <div class="rating">
+                                            @for (int i = 5; i >= 1; i--)
+                                            {
+                                                <input type="radio"
+                                                       id="add-star-@item.ProductId-@i"
+                                                       name="rating"
+                                                       value="@i" />
+
+                                                <label for="add-star-@item.ProductId-@i">★</label>
+                                            }
+                                        </div>
+
+                                        <textarea name="review"
+                                  class="form-control mt-2"
+                                  rows="2"
+                                  placeholder="Write your review..."></textarea>
+
+                                        <button type="submit"
+                                                class="btn btn-sm btn-primary mt-2">
+                                            Submit Review
+                                        </button>
+
+                                    </form>
+                                }
+
+                                <!-- ================================================= -->
+
+                            </div>
+
+                            <!-- PRICE -->
+                            <div class="fw-bold">
+                                ₹@(item.Price* item.Quantity)
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+        }
+    }
+
+</div>
+
+<script>
+    function toggleEdit(id) {
+        var form = document.getElementById("editForm-" + id);
+
+        if (form.style.display === "none") {
+            form.style.display = "block";
+        } else {
+            form.style.display = "none";
+        }
+    }
+</script>
