@@ -1,0 +1,191 @@
+
+
+
+@model List<cake_shop.Models.Shipping>
+
+@{
+    ViewData["Title"] = "Shipping";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+    <div class="page-title">
+        <h2>Shipping Management</h2>
+        <p>Manage all order shipments</p>
+    </div>
+</div>
+
+<!-- SUCCESS POPUP -->
+@if (TempData["success"] != null)
+{
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: '@TempData["success"]',
+            timer: 2000,
+            showConfirmButton: false
+        });
+    </script>
+}
+
+<!-- SEARCH + FILTER -->
+<form method="get" asp-action="Shipping" asp-controller="Admin">
+    <div class="panel" style="margin-top:20px;">
+
+        <div style="display:flex; justify-content:space-between; gap:10px;">
+
+            <!-- SEARCH -->
+            <div class="search" style="flex:1;">
+                <i class="fa fa-search"></i>
+                <input type="text"
+                       name="search"
+                       value="@Context.Request.Query["search"]"
+                       placeholder="Search customer, order, phone..." />
+            </div>
+
+            <!-- STATUS FILTER -->
+            <select name="status">
+                <option value="">All Status</option>
+                <option value="Pending">Pending</option>
+                <option value="In Transit">In Transit</option>
+                <option value="Delivered">Delivered</option>
+            </select>
+
+            <button type="submit" class="action-btn primary">
+                Filter
+            </button>
+
+        </div>
+
+    </div>
+</form>
+
+<!-- TABLE -->
+<div class="panel">
+
+    <table id="orderTable">
+
+        <thead>
+            <tr>
+                <th>SHIPPING ID</th>
+                <th>ORDER</th>
+                <th>CUSTOMER</th>
+                <th>EMAIL</th>
+                <th>PHONE</th>
+                <th>DESTINATION</th>
+                <th>METHOD</th>
+                <th>STATUS</th>
+                <th>ACTIONS</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            @if (Model != null && Model.Count > 0)
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+
+                        <td class="pink">#SHP-@item.Id</td>
+
+                        <td>#ORD-@item.OrderId</td>
+
+                        <td>@item.CustomerName</td>
+
+                        <td>@item.Email</td>
+
+                        <td>@item.Phone</td>
+
+                        <td>@item.Destination</td>
+
+                        <td>@item.Method</td>
+
+                        <td>
+                            <span class="status @(item.Status == "Delivered" ? "delivered" :
+                                                                                   item.Status == "In Transit" ? "processing" : "pending")">
+                        @item.Status
+                    </span>
+                </td>
+
+                        <td class="actions">
+
+                            <a href="javascript:void(0);"
+                               onclick="changeStatus(@item.Id, 'In Transit')">
+                                <i class="fa fa-truck edit"></i>
+                            </a>
+
+                            <a href="javascript:void(0);"
+                               onclick="changeStatus(@item.Id, 'Delivered')">
+                                <i class="fa fa-check edit"></i>
+                            </a>
+
+                            <a href="javascript:void(0);"
+                               onclick="confirmDelete(@item.Id)">
+                                <i class="fa fa-trash delete"></i>
+                            </a>
+
+                        </td>
+
+                    </tr>
+                        }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="9" style="text-align:center;">
+                        No shipping records found
+                    </td>
+                </tr>
+            }
+
+        </tbody>
+
+    </table>
+
+</div>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    // STATUS CHANGE POPUP
+    function changeStatus(id, status) {
+
+        Swal.fire({
+            title: 'Update Status?',
+            text: "Change status to " + status + "?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#aaa',
+            confirmButtonText: 'Yes, update!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href =
+                    '/Admin/UpdateShippingStatus?id=' + id + '&status=' + status;
+            }
+        });
+    }
+
+    // DELETE POPUP
+    function confirmDelete(id) {
+        Swal.fire({
+            title: 'Delete Shipping?',
+            text: "This record will be removed permanently!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ff4d6d',
+            cancelButtonColor: '#aaa',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = '/Admin/DeleteShipping/' + id;
+            }
+        });
+    }
+</script>
