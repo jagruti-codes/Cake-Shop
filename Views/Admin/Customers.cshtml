@@ -1,0 +1,154 @@
+
+
+
+@model List<cake_shop.Models.AppUser>
+
+@{
+    ViewData["Title"] = "Customers";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<!-- HEADER -->
+<div class="page-header">
+    <div class="page-title">
+        <h2>Customer Management</h2>
+        <p>Manage bakery customers and their status</p>
+    </div>
+</div>
+
+<!-- SEARCH + FILTER PANEL -->
+<form method="get" asp-action="Customers" asp-controller="Admin">
+    <div class="panel" style="margin-top:20px;">
+
+        <div style="display:flex; justify-content:space-between; gap:10px;">
+
+            <!-- SEARCH -->
+            <div class="search" style="flex:1;">
+                <i class="fa fa-search"></i>
+                <input type="text"
+                       name="search"
+                       value="@Context.Request.Query["search"]"
+                       placeholder="Search by name, email, phone..." />
+            </div>
+
+            <!-- STATUS FILTER -->
+            <select name="status">
+                <option value="">All Status</option>
+                <option value="Active" selected="@(Context.Request.Query["status"] == "Active")">Active</option>
+                <option value="Inactive" selected="@(Context.Request.Query["status"] == "Inactive")">Inactive</option>
+            </select>
+
+            <button type="submit" class="action-btn primary">
+                Filter
+            </button>
+
+        </div>
+
+    </div>
+</form>
+
+<!-- TABLE PANEL -->
+<div class="panel">
+
+    <table id="customerTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>NAME</th>
+                <th>EMAIL</th>
+                <th>PHONE</th>
+                <th>STATUS</th>
+                <th>ACTIONS</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            @if (Model != null && Model.Count > 0)
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>#CUST-@item.Id</td>
+                        <td>@item.Name</td>
+                        <td>@item.Email</td>
+                        <td>@item.Phone</td>
+
+                        <!-- STATUS -->
+                        <td>
+                            @if (item.IsEmailVerified)
+                            {
+                                <span class="status delivered">Active</span>
+                            }
+                            else
+                            {
+                                <span class="status pending">Inactive</span>
+                            }
+                        </td>
+
+                        <!-- ACTIONS -->
+                        <td class="actions">
+
+                            <a asp-action="EditCustomer"
+                               asp-controller="Admin"
+                               asp-route-id="@item.Id">
+                                <i class="fa fa-pen edit"></i>
+                            </a>
+
+                            <a href="javascript:void(0);"
+                               onclick="confirmDelete(@item.Id)">
+                                <i class="fa fa-trash delete"></i>
+                            </a>
+
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="6" style="text-align:center;">
+                        No customers found
+                    </td>
+                </tr>
+            }
+
+        </tbody>
+
+    </table>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    function confirmDelete(id) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "This customer will be deleted permanently!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ff4d6d',
+            cancelButtonColor: '#aaa',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = '/Admin/DeleteCustomer/' + id;
+            }
+        });
+    }
+</script>
+
+@if (TempData["success"] != null)
+{
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: '@TempData["success"]',
+            timer: 2000,
+            showConfirmButton: false
+        });
+    </script>
+}
