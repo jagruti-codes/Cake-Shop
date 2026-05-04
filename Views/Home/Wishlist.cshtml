@@ -1,0 +1,271 @@
+﻿@* @{
+    ViewData["Title"] = "Wishlist";
+}
+
+<div class="wishlist-v2">
+    <section class="wishlist-head">
+        <p class="home-eyebrow">Favorites</p>
+        <h1>My Wishlist</h1>
+        <p>Save your favorite cakes and move them to cart anytime.</p>
+    </section>
+
+    <section class="wishlist-shell">
+        <div id="wishlistEmpty" class="empty-state" style="display:none;">
+            <i class="fa-regular fa-heart"></i>
+            <h3>Your wishlist is empty</h3>
+            <p>Browse cakes and add the ones you love.</p>
+            <a href="/Home/Cakes" class="btn btn-danger">Explore Cakes</a>
+        </div>
+
+        <div id="wishlistTableWrap" class="table-wrap" style="display:none;">
+            <table class="table wishlist-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Cake</th>
+                        <th>Price</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="wishlistBody"></tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script>
+        const wishlistBody = document.getElementById('wishlistBody');
+        const wishlistEmpty = document.getElementById('wishlistEmpty');
+        const wishlistTableWrap = document.getElementById('wishlistTableWrap');
+
+        const catalog = {
+            'Chocolate Truffle Cake': { price: 25, image: '/images/birthday1.jpg' },
+            'Classic Birthday Cake': { price: 28, image: '/images/birthday2.jpg' },
+            'Vanilla Berry Cupcakes': { price: 18, image: '/images/birthday3.jpg' },
+            'Dark Cocoa Supreme': { price: 31, image: '/images/birthday4.jpg' },
+            'Confetti Party Cake': { price: 26, image: '/images/birthday5.jpg' },
+            'Classic Choco Cupcakes': { price: 20, image: '/images/birthday7.jpg' },
+            'Chocolate Cake': { price: 20, image: '/images/birthday1.jpg' }
+        };
+
+        function normalizeWishlistItem(item) {
+            if (typeof item === 'string') {
+                const fallback = catalog[item] || { price: 24, image: '/images/bakery3.jpg' };
+                return { name: item, price: fallback.price, image: fallback.image };
+            }
+
+            const name = item?.name || 'Cake';
+            const fallback = catalog[name] || { price: 24, image: '/images/bakery3.jpg' };
+            return {
+                name,
+                price: Number(item?.price) || fallback.price,
+                image: item?.image || fallback.image
+            };
+        }
+
+        function renderWishlist() {
+            const rawWishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+            const wishlist = rawWishlist.map(normalizeWishlistItem);
+
+            if (!wishlist.length) {
+                wishlistEmpty.style.display = 'grid';
+                wishlistTableWrap.style.display = 'none';
+                return;
+            }
+
+            wishlistEmpty.style.display = 'none';
+            wishlistTableWrap.style.display = 'block';
+
+            wishlistBody.innerHTML = wishlist.map((item, index) => {
+                return `
+                    <tr>
+                        <td><img src="${item.image}" alt="${item.name}" class="product-thumb" /></td>
+                        <td><strong>${item.name}</strong></td>
+                        <td>$${item.price}</td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-danger" onclick="moveToCart(${index})">Add to Cart</button>
+                            <button class="btn btn-sm btn-outline-secondary ms-2" onclick="removeWishlist(${index})">Remove</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function removeWishlist(index) {
+            const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+            wishlist.splice(index, 1);
+            localStorage.setItem('wishlist', JSON.stringify(wishlist));
+            renderWishlist();
+        }
+
+        function moveToCart(index) {
+            const rawWishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+            const item = normalizeWishlistItem(rawWishlist[index]);
+            if (!item) return;
+
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cart.push({ name: item.name, price: item.price, image: item.image });
+            localStorage.setItem('cart', JSON.stringify(cart));
+
+            rawWishlist.splice(index, 1);
+            localStorage.setItem('wishlist', JSON.stringify(rawWishlist));
+            renderWishlist();
+        }
+
+        renderWishlist();
+    </script>
+} *@
+
+
+
+
+
+@model List<cake_shop.Models.Wishlist>
+
+@{
+    ViewData["Title"] = "Wishlist";
+}
+
+<h2>My Wishlist</h2>
+@* 
+@if (!Model.Any())
+{
+    <p>Your wishlist is empty</p>
+} *@
+
+@if (!Model.Any())
+{
+    <div class="wishlist-v2">
+        <section class="wishlist-head">
+            <p class="home-eyebrow">Favorites</p>
+            <h1>My Wishlist</h1>
+            <p>Save your favorite cakes and move them to cart anytime.</p>
+        </section>
+
+        <section class="wishlist-shell">
+            <div class="empty-state" style="display:grid;">
+                <i class="fa-regular fa-heart"></i>
+                <h3>Your wishlist is empty</h3>
+                <p>Browse delicious cakes and add them to your wishlist.</p>
+                <a href="/Home/Cakes" class="btn btn-danger">Browse Cakes</a>
+            </div>
+        </section>
+    </div>
+}
+@* else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Product</th>
+                <th>Price</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        <img src="@item.Product.ImagePath" width="80" />
+                    </td>
+                    <td>@item.Product.Name</td>
+                    <td>₹@item.Product.Price</td>
+                    <td>
+                        <a asp-action="RemoveWishlist" asp-route-id="@item.Id" class="btn btn-danger">
+                            Remove
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+} *@
+
+
+
+
+
+
+else
+{
+    <div class="wishlist-v2">
+
+        <section class="wishlist-head">
+            <p class="home-eyebrow">Favorites</p>
+            <h1>My Wishlist</h1>
+            <p>Save your favorite cakes and move them to cart anytime.</p>
+        </section>
+
+        <section class="wishlist-shell">
+
+            <div class="table-wrap">
+                <table class="table cart-table align-middle wishlist-table">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Cake</th>
+                            <th>Price</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <img src="@item.Product.ImagePath" class="product-thumb" />
+                                </td>
+
+                                <td>
+                                    <strong>@item.Product.Name</strong>
+                                </td>
+
+                                <td>
+                                    ₹@item.Product.Price
+                                </td>
+
+                                <td class="text-end">
+                                    @* <a asp-action="RemoveWishlist"
+                                       asp-route-id="@item.Id"
+                                       class="btn btn-sm btn-danger">
+                                        Remove
+                                    </a> *@
+
+                                    @* <a asp-action="AddToCartFromWishlist"
+                                       asp-route-id="@item.Id"
+                                       class="btn btn-sm btn-success">
+                                        Add to Cart
+                                    </a> *@
+                                    <a asp-action="AddToCartFromWishlist"
+                                       asp-route-id="@item.Id"
+                                       class="btn btn-sm btn-success">
+                                        Move to Cart
+                                    </a>
+                                    <a asp-action="RemoveWishlist"
+                                       asp-route-id="@item.Id"
+                                       class="btn btn-sm btn-danger ms-2">
+                                        Remove
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+
+                </table>
+            </div>
+
+            <!-- NEW BUTTON BELOW TABLE -->
+            <div class="text-end mt-3">
+                <a href="/Home/Cakes" class="btn btn-outline-secondary">
+                    Continue Shopping
+                </a>
+            </div>
+
+        </section>
+
+    </div>
+}
