@@ -1,0 +1,183 @@
+﻿
+
+@model List<cake_shop.Models.Cart>
+
+@{
+    ViewData["Title"] = "Cart";
+}
+
+<div class="cart-v2">
+
+    <section class="cart-head">
+        <p class="home-eyebrow">Your Order</p>
+        <h1>Shopping Cart</h1>
+        <p>Select items you want to checkout</p>
+    </section>
+
+    <section class="cart-shell">
+
+        @if (!Model.Any())
+        {
+            <div class="empty-state" style="display:grid;">
+                <i class="fa-solid fa-basket-shopping"></i>
+                <h3>Your cart is empty</h3>
+                <a href="/Home/Cakes" class="btn btn-danger">Browse Cakes</a>
+            </div>
+        }
+        else
+        {
+            <!-- TABLE -->
+            <div class="table-wrap">
+
+                <table class="table cart-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>
+                                <input type="checkbox" id="selectAll" />
+                            </th>
+                            <th>Image</th>
+                            <th>Cake</th>
+                            <th>Price</th>
+                            <th>Qty</th>
+                            <th>Total</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+
+                                <!-- SELECT -->
+                                <td>
+                                    @* <input type="checkbox"
+                                           class="cart-select"
+                                           data-price="@item.Product!.Price * @item.Quantity"
+                                           value="@item.Id" /> *@
+
+                                    <input type="checkbox"
+                                           class="cart-select"
+                                           data-price="@item.Product!.Price * @item.Quantity"
+                                           value="@item.ProductId" />
+                                </td>
+
+                                <!-- IMAGE -->
+                                <td>
+                                    <img src="@item.Product?.ImagePath"
+                                         style="width:60px;height:60px;object-fit:cover;border-radius:8px;" />
+                                </td>
+
+                                <!-- NAME -->
+                                <td>@item.Product?.Name</td>
+
+                                <!-- PRICE -->
+                                <td>₹@item.Product?.Price</td>
+
+                                <!-- QTY -->
+                                <td>
+                                    <form asp-action="UpdateCart" method="post" style="display:flex; gap:5px;">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <input type="number" name="qty" value="@item.Quantity" min="1" style="width:60px;" />
+                                        <button class="btn btn-sm btn-primary">Update</button>
+                                    </form>
+                                </td>
+
+                                <!-- TOTAL -->
+                                <td>
+                                    ₹@(item.Product!.Price * item.Quantity)
+                                </td>
+
+                                <!-- REMOVE -->
+                                <td class="text-end">
+                                    <a asp-action="RemoveCart"
+                                       asp-route-id="@item.Id"
+                                       class="btn btn-sm btn-danger">
+                                        Remove
+                                    </a>
+                                </td>
+
+                            </tr>
+                        }
+                    </tbody>
+
+                </table>
+            </div>
+
+            <!-- TOTAL BOX -->
+            <div class="cart-total-box text-end mt-3">
+
+                <h4>
+                    Selected Total: ₹<span id="selectedTotal">0</span>
+                </h4>
+
+                <h5>
+                    Grand Total: ₹@Model.Sum(x => x.Product!.Price * x.Quantity)
+                </h5>
+
+                <button class="btn btn-success mt-2"
+                        onclick="goToCheckout()">
+                    Proceed to Checkout
+                </button>
+
+                <a href="/Home/Cakes"
+                   class="btn btn-outline-secondary mt-2 ms-2">
+                    Continue Shopping
+                </a>
+
+            </div>
+        }
+
+    </section>
+</div>
+
+<!-- SCRIPT -->
+@section Scripts {
+    <script>
+
+        const checkboxes = document.querySelectorAll(".cart-select");
+        const selectedTotalEl = document.getElementById("selectedTotal");
+        const selectAll = document.getElementById("selectAll");
+
+        // ---- UPDATE SELECTED TOTAL ----
+        function updateTotal() {
+            let total = 0;
+
+            checkboxes.forEach(cb => {
+                if (cb.checked) {
+                    total += parseFloat(cb.dataset.price);
+                }
+            });
+
+            selectedTotalEl.innerText = total.toFixed(2);
+        }
+
+        // ---- INDIVIDUAL CHECKBOX ----
+        checkboxes.forEach(cb => {
+            cb.addEventListener("change", updateTotal);
+        });
+
+        // ---- SELECT ALL ----
+        selectAll.addEventListener("change", function () {
+            checkboxes.forEach(cb => cb.checked = this.checked);
+            updateTotal();
+        });
+
+        // ---- CHECKOUT SELECTED ----
+        function goToCheckout() {
+
+            let selected = [];
+
+            document.querySelectorAll(".cart-select:checked")
+                .forEach(x => selected.push(x.value));
+
+            if (selected.length === 0) {
+                alert("Please select at least one item");
+                return;
+            }
+
+            window.location.href = "/Home/Checkout?ids=" + selected.join(",");
+        }
+
+    </script>
+}
