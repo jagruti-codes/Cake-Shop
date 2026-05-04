@@ -1,0 +1,38 @@
+
+}
+@model List<cake_shop.Models.ContactMessage>
+
+<h2>User Contact Messages</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Event Date</th>
+            <th>Message</th>
+            <th>Date</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.Email</td>
+                <td>@item.Phone</td>
+                <td>@item.EventDate</td>
+                <td>@item.Message</td>
+                <td>@item.CreatedAt</td>
+                <td>
+                    <a href="/Admin/ReplyMessage/@item.Id" class="btn btn-primary">
+                        Reply
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
