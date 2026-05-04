@@ -1,0 +1,77 @@
+
+
+
+@model cake_shop.Models.AppUser
+
+@{
+    ViewData["Title"] = "Edit Customer";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+
+<!-- HEADER -->
+<div class="page-header">
+    <div class="page-title">
+        <h2>Edit Customer</h2>
+        <p>Update customer status</p>
+    </div>
+</div>
+
+<!-- FORM PANEL -->
+<div class="panel">
+
+    <form asp-action="EditCustomer" method="post">
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" asp-for="Id" />
+
+        @* <div class="form-grid"> *@
+        <div class="form-grid" style="grid-template-columns: 2fr 1fr; gap: 30px; align-items: start;">
+            <!-- LEFT SIDE -->
+            <div>
+
+                <label>Customer Name</label>
+                <input asp-for="Name" disabled />
+
+                <label>Email Address</label>
+                <input asp-for="Email" disabled />
+
+                <label>Phone Number</label>
+                <input asp-for="Phone" disabled />
+
+            </div>
+
+            <!-- RIGHT SIDE -->
+            @* <div class="upload-box"> *@
+            <div class="upload-box" style="height: 100%; display:flex; flex-direction:column; justify-content:flex-start;">
+                <i class="fa fa-user upload-icon"></i>
+
+                <p><b>Customer Status</b></p>
+                <small>Only status can be updated</small>
+
+                <label style="margin-top:15px;">Status</label>
+                <select asp-for="IsEmailVerified">
+                    <option value="true" selected="@(Model.IsEmailVerified ? "selected" : null)">
+                        Active
+                    </option>
+                    <option value="false" selected="@(Model.IsEmailVerified == false ? "selected" : null)">
+                        Inactive
+                    </option>
+                </select>
+
+            </div>
+
+        </div>
+
+        <!-- BUTTONS -->
+        <div class="form-actions center-btns">
+            <a asp-action="Customers" class="action-btn light">Cancel</a>
+            <button type="submit" class="action-btn primary">
+                Save Changes
+            </button>
+        </div>
+
+    </form>
+
+</div>
