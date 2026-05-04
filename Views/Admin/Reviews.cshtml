@@ -1,0 +1,171 @@
+
+
+@model List<cake_shop.Models.RatingReview>
+
+@{
+    ViewData["Title"] = "Rating & Review";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+<!-- HEADER -->
+<div class="page-header">
+    <h2>Rating & Review Management</h2>
+    <p>Manage all customer feedback</p>
+</div>
+
+<!-- CARDS -->
+<div class="cards">
+    <div class="card"><h3>Total</h3><h2>@Model.Count()</h2></div>
+
+    <div class="card">
+        <h3>Avg Rating</h3>
+        <h2>
+            @{
+                double avg = Model.Any() ? Model.Average(x => x.Rating) : 0;
+            }
+            @avg.ToString("0.0")
+        </h2>
+    </div>
+
+    <div class="card"><h3>5★</h3><h2>@Model.Count(x => x.Rating == 5)</h2></div>
+
+    <div class="card"><h3>1★</h3><h2>@Model.Count(x => x.Rating == 1)</h2></div>
+</div>
+
+<!-- TABLE -->
+@if (Model != null && Model.Any())
+{
+    <div class="panel" style="margin-top:20px;">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>CUSTOMER</th>
+                    <th>PRODUCT</th>
+                    <th>RATING</th>
+                    <th>REVIEW</th>
+                    <th>STATUS</th>
+                    <th>DATE</th>
+                    <th>ACTIONS</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>#REV-@item.Id</td>
+                        <td>@item.User?.Name</td>
+                        <td>@item.Product?.Name</td>
+
+                        <td style="color:#ff4d6d;">
+                            @for (int i = 1; i <= item.Rating; i++)
+                            {
+                                <span>★</span>
+                            }
+                        </td>
+
+                        <td>@item.Review</td>
+
+                        <td>
+                            @if (item.Status == "Approved")
+                            {
+                                <span class="badge bg-success">Approved</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark">Pending</span>
+                            }
+                        </td>
+
+                        <td>@item.CreatedAt.ToString("dd MMM yyyy")</td>
+
+                        <td>
+
+                            <!-- APPROVE -->
+                            @if (item.Status != "Approved")
+                            {
+                                <a href="javascript:void(0);"
+                                   onclick="approveReview(@item.Id)">
+                                    <i class="fa fa-check" style="color:green;"></i>
+                                </a>
+                            }
+
+                            <!-- DELETE -->
+                            <a href="javascript:void(0);"
+                               onclick="deleteReview(@item.Id)">
+                                <i class="fa fa-trash" style="color:red;"></i>
+                            </a>
+
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <div class="panel text-center" style="margin-top:20px;padding:30px;">
+        <h4 style="color:gray;">No Reviews Found</h4>
+    </div>
+}
+
+<!-- SUCCESS POPUP -->
+@if (TempData["success"] != null)
+{
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: '@TempData["success"]',
+            timer: 2000,
+            showConfirmButton: false
+        });
+    </script>
+}
+
+<!-- SWEETALERT ACTIONS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+
+    //  APPROVE REVIEW POPUP
+    function approveReview(id) {
+
+        Swal.fire({
+            title: 'Approve this review?',
+            text: "This will mark it as Approved",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#aaa',
+            confirmButtonText: 'Yes, Approve'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = '/Admin/ApproveReview?id=' + id;
+            }
+        });
+    }
+
+    // DELETE REVIEW POPUP
+    function deleteReview(id) {
+
+        Swal.fire({
+            title: 'Delete Review?',
+            text: "This cannot be undone",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#aaa',
+            confirmButtonText: 'Yes, Delete'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = '/Admin/DeleteReview?id=' + id;
+            }
+        });
+    }
+
+</script>
