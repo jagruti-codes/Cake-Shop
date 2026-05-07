@@ -1,10 +1,3 @@
-
-
-
-
-
-
-
 @model List<cake_shop.Models.Product>
 
 @{
@@ -12,15 +5,26 @@
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
+<!-- SWEETALERT CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<!-- ✅ SUCCESS ALERT -->
-<div id="successAlert" class="alert success" style="display:none;">
-    Category saved successfully!
-</div>
+<!-- SUCCESS ALERT (ADD / EDIT / DELETE) -->
+@if (TempData["success"] != null)
+{
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: '@TempData["success"]',
+                showConfirmButton: false,
+                timer: 2000
+            });
+        });
+    </script>
+}
 
-
-
-<!-- HEADER -->
+<!-- PAGE HEADER -->
 <div class="page-header">
 
     <div class="page-title">
@@ -32,23 +36,20 @@
         <a asp-action="AddProduct" class="action-btn primary">
             + Add New Product
         </a>
-
     </div>
 
 </div>
 
 <!-- TABLE PANEL -->
 <div class="panel">
+
     <!-- SEARCH + FILTER -->
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; gap:10px;">
 
         <div class="search" style="flex:1;">
             <i class="fa fa-search"></i>
-          
             <input type="text" id="searchBox" placeholder="Search product..." />
         </div>
-
-      
 
         <select id="statusFilter" class="status-dropdown">
             <option value="all">All Status</option>
@@ -58,6 +59,7 @@
 
     </div>
 
+    <!-- TABLE -->
     <table id="productTable">
 
         <thead>
@@ -78,32 +80,39 @@
 
             @if (Model != null && Model.Any())
             {
-                
-                @foreach (var item in Model)
+                foreach (var item in Model)
                 {
                     <tr>
                         <td>#PRD-@item.Id</td>
-                        <td><img src="@item.ImagePath" width="40" /></td>
+
+                        <td>
+                            <img src="@item.ImagePath" width="40" height="40"
+                                 style="border-radius:6px; object-fit:cover;" />
+                        </td>
+
                         <td>@item.Name</td>
                         <td>@item.Description</td>
                         <td>@item.Category?.Name</td>
-                        <td>@item.Price</td>
+                        <td>₹@item.Price</td>
                         <td>@item.Stock</td>
-                        <td>@item.Status</td>
 
+                        <td>
+                            <span class="status @(item.Status?.ToLower() == "active" ? "delivered" : "processing")">
+                                @item.Status
+                            </span>
+                        </td>
 
                         <td class="actions">
 
+                            <!-- EDIT -->
                             <a asp-action="EditProduct" asp-route-id="@item.Id">
                                 <i class="fa fa-pen edit"></i>
                             </a>
 
-                          
+                            <!-- DELETE -->
                             <a href="javascript:void(0);" onclick="confirmDelete(@item.Id)">
                                 <i class="fa fa-trash delete"></i>
                             </a>
-
-                       
 
                         </td>
                     </tr>
@@ -122,6 +131,7 @@
 
 </div>
 
+<!-- FILTER SCRIPT -->
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("searchBox").addEventListener("keyup", filterTable);
@@ -137,42 +147,38 @@
 
         rows.forEach(row => {
 
-            //  EXACT COLUMN LOCATION FIX
             let name = row.cells[2]?.innerText.toLowerCase().trim() || "";
             let desc = row.cells[3]?.innerText.toLowerCase().trim() || "";
             let status = row.cells[7]?.innerText.toLowerCase().trim() || "";
 
-            //  search match (name + description)
             let matchSearch =
                 name.includes(search) ||
                 desc.includes(search);
 
-            // status match
             let matchStatus =
                 statusFilter === "all" ||
                 status === statusFilter;
 
-            // final filter
             row.style.display = (matchSearch && matchStatus) ? "" : "none";
         });
     }
 </script>
 
-
-
-
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-@if (TempData["success"] != null)
-{
-    <script>
+<!-- DELETE CONFIRMATION -->
+<script>
+    function confirmDelete(id) {
         Swal.fire({
-            icon: 'success',
-            title: 'Success',
-            text: '@TempData["success"]',
-            timer: 2000,
-            showConfirmButton: false
+            title: 'Delete Product?',
+            text: "This product will be permanently deleted!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ff4d6d',
+            cancelButtonColor: '#aaa',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = '/Admin/DeleteProduct/' + id;
+            }
         });
-    </script>
-}
+    }
+</script>
