@@ -6,13 +6,26 @@
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<!--  SUCCESS ALERT -->
-<div id="successAlert" class="alert success" style="display:none;">
-    Category saved successfully!
-</div>
+<!-- SWEETALERT CDN  -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+<!-- SUCCESS ALERT (ADD / EDIT / DELETE) -->
+@if (TempData["success"] != null)
+{
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: '@TempData["success"]',
+                showConfirmButton: false,
+                timer: 2000
+            });
+        });
+    </script>
+}
 
-<!-- HEADER -->
+<!-- PAGE HEADER -->
 <div class="page-header">
     <div class="page-title">
         <h2>Manage Categories</h2>
@@ -23,45 +36,7 @@
         <a asp-action="AddCategory" class="action-btn primary">
             + Add Category
         </a>
-      
     </div>
-</div>
-
-<!-- FORM -->
-<div class="panel" id="categoryForm" style="display:none;">
-
-    <h3 id="formTitle">Add Category</h3>
-
-    <div class="form-grid">
-        <div>
-            <label>Category Name</label>
-            <input type="text" id="name" />
-
-            <label>Description</label>
-            <textarea id="desc"></textarea>
-
-            <label>Items</label>
-            <input type="number" id="items" />
-
-            <label>Status</label>
-            <select id="status">
-                <option>Active</option>
-                <option>Inactive</option>
-            </select>
-        </div>
-
-        <div class="upload-box">
-            <i class="fa fa-cloud-upload-alt upload-icon"></i>
-            <p><b>Upload Category Image</b></p>
-            <small>PNG, JPG up to 5MB</small>
-        </div>
-    </div>
-
-    <div class="form-actions center-btns">
-        <button class="action-btn light" onclick="closeForm()">Cancel</button>
-        <button class="action-btn primary" onclick="saveCategory()">Save</button>
-    </div>
-
 </div>
 
 <!-- TABLE PANEL -->
@@ -74,9 +49,6 @@
             <i class="fa fa-search"></i>
             <input type="text" id="searchBox" placeholder="Search categories..." />
         </div>
-
-   
-
 
         <select id="statusFilter" class="status-dropdown">
             <option value="all">All Status</option>
@@ -100,59 +72,51 @@
             </tr>
         </thead>
 
-
         <tbody>
             @foreach (var item in Model)
             {
                 <tr>
                     <td>#CAT-@item.Id</td>
+
                     <td>
-                        <img src="@item.ImagePath" style="width:40px;height:40px;border-radius:6px;" />
+                        <img src="@item.ImagePath"
+                             style="width:40px;height:40px;border-radius:6px;" />
                     </td>
+
                     <td>@item.Name</td>
+
                     <td>@item.Description</td>
+
                     <td>@item.ItemCount</td>
+
                     <td>
                         <span class="status @(item.IsActive ? "delivered" : "processing")">
                             @(item.IsActive ? "Active" : "Inactive")
                         </span>
                     </td>
-                   
 
                     <td class="actions">
 
+                        <!-- EDIT -->
                         <a asp-action="EditCategory" asp-route-id="@item.Id">
                             <i class="fa fa-pen edit"></i>
                         </a>
 
-                       
+                        <!-- DELETE -->
                         <a href="javascript:void(0);" onclick="confirmDelete(@item.Id)">
                             <i class="fa fa-trash delete"></i>
                         </a>
-
-                      
 
                     </td>
                 </tr>
             }
         </tbody>
 
-
-
     </table>
-
-    <!-- PAGINATION -->
-    <div class="pagination-bar">
-
-        <div id="pageInfo"></div>
-
-
-    </div>
 
 </div>
 
-
-<!--  FILTER SCRIPT -->
+<!-- SEARCH + FILTER SCRIPT -->
 <script>
     document.getElementById("searchBox").addEventListener("keyup", filterTable);
     document.getElementById("statusFilter").addEventListener("change", filterTable);
@@ -167,8 +131,6 @@
         rows.forEach(row => {
 
             let text = row.innerText.toLowerCase();
-
-            // FIXED STATUS COLUMN INDEX
             let status = row.cells[5].innerText.toLowerCase().trim();
 
             let matchSearch = text.includes(search);
@@ -182,28 +144,12 @@
     }
 </script>
 
-<!-- SUCCESS POPUP -->
-@if (TempData["success"] != null)
-{
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            Swal.fire({
-                icon: 'success',
-                title: 'Success',
-                text: '@TempData["success"]',
-                showConfirmButton: false,
-                timer: 2000
-            });
-        });
-    </script>
-}
-
-<!-- DELETE CONFIRMATION -->
+<!-- DELETE CONFIRMATION (SWEETALERT) -->
 <script>
     function confirmDelete(id) {
         Swal.fire({
-            title: 'Are you sure?',
-            text: "This category will be deleted!",
+            title: 'Delete Category?',
+            text: "This category will be permanently deleted!",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#ff4d6d',
@@ -216,7 +162,3 @@
         });
     }
 </script>
-
-
-
-
