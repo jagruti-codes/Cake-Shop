@@ -1,4 +1,3 @@
-
 using cake_shop.Data;
 using cake_shop.Models;
 using Microsoft.AspNetCore.Http;
@@ -124,18 +123,12 @@ namespace cake_shop.Controllers
         }
 
 
-
-
-
-
         //  Logout (optional but recommended)
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
             return RedirectToAction("Login", "Account");
         }
-
-        //category page Your AdminController currently has ONLY Dashboard.
 
        
 
@@ -161,9 +154,6 @@ namespace cake_shop.Controllers
         }
 
 
-
-
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult AddCategory(Category model, IFormFile imageFile)
@@ -173,7 +163,7 @@ namespace cake_shop.Controllers
 
             if (ModelState.IsValid)
             {
-                // ✅ HANDLE IMAGE UPLOAD
+                //  HANDLE IMAGE UPLOAD
                 if (imageFile != null && imageFile.Length > 0)
                 {
                     string folder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
@@ -195,7 +185,7 @@ namespace cake_shop.Controllers
                 _context.Categories.Add(model);
                 _context.SaveChanges();
 
-                //return RedirectToAction("Category");
+                
                 TempData["success"] = "Category added successfully!";
                 return RedirectToAction("Category");
             }
@@ -280,10 +270,7 @@ public IActionResult EditCategory(Category model, IFormFile imageFile)
         }
 
 
-
-
         //Product
-
 
         public IActionResult Product()
         {
@@ -357,8 +344,6 @@ public IActionResult EditCategory(Category model, IFormFile imageFile)
 
 
 
-
-
         //edit product
 
         public IActionResult EditProduct(int id)
@@ -415,10 +400,6 @@ public IActionResult EditCategory(Category model, IFormFile imageFile)
             TempData["success"] = "Product updated successfully!";
             return RedirectToAction("Product");
         }
-
-
-
-
 
 
         public IActionResult DeleteProduct(int id)
@@ -621,7 +602,7 @@ public IActionResult EditCategory(Category model, IFormFile imageFile)
 
             return RedirectToAction("Shipping");
         }
-        //----
+       
 
         //change Status
 
@@ -638,9 +619,6 @@ public IActionResult EditCategory(Category model, IFormFile imageFile)
 
             return RedirectToAction("Orders");
         }
-
-
-
 
 
         public IActionResult Payment(string search, string status)
@@ -684,10 +662,10 @@ public IActionResult EditCategory(Category model, IFormFile imageFile)
             if (payment == null)
                 return NotFound();
 
-            // 1. Update Payment Status
+            // Update Payment Status
             payment.Status = status;
 
-            // 2. Sync Order Status (IMPORTANT)
+            //  Sync Order Status (IMPORTANT)
             if (payment.Order != null)
             {
                 payment.Order.Status = status == "Completed"
@@ -702,9 +680,6 @@ public IActionResult EditCategory(Category model, IFormFile imageFile)
             TempData["success"] = "Payment status updated successfully!";
             return RedirectToAction("Payment");
         }
-
-
-
 
 
         // ======================= CUSTOMERS =======================
@@ -814,20 +789,25 @@ public IActionResult EditCategory(Category model, IFormFile imageFile)
 
 
 
-     
-
         public IActionResult ApproveReview(int id)
         {
-            var review = _context.RatingReviews.FirstOrDefault(r => r.Id == id);
+            var review = _context.RatingReviews
+                .FirstOrDefault(r => r.Id == id);
 
             if (review == null)
                 return NotFound();
 
             review.IsApproved = true;
+            review.Status = "Approved";
+
             _context.SaveChanges();
 
-            return RedirectToAction("AllReviews");
+            TempData["success"] = "Review approved!";
+
+            return RedirectToAction("Reviews");
         }
+
+
 
 
         //delete
